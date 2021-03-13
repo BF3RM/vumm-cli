@@ -2,6 +2,7 @@ package workspace
 
 import (
 	"encoding/json"
+	"github.com/Masterminds/semver"
 	"os"
 	"path/filepath"
 )
@@ -9,7 +10,7 @@ import (
 type WorkspaceConfig struct {
 	file *os.File
 
-	Mods map[string]string `json:"mods"`
+	Mods map[string]*semver.Constraints `json:"mods"`
 }
 
 var loadedConfig *WorkspaceConfig
@@ -32,7 +33,7 @@ func GetConfig() (*WorkspaceConfig, error) {
 
 			loadedConfig = &WorkspaceConfig{
 				file: configFile,
-				Mods: map[string]string{},
+				Mods: map[string]*semver.Constraints{},
 			}
 			loadedConfig.Save()
 
@@ -53,7 +54,7 @@ func GetConfig() (*WorkspaceConfig, error) {
 }
 
 // AddMod adds a new mod to the config
-func (c *WorkspaceConfig) AddMod(mod, version string) {
+func (c *WorkspaceConfig) AddMod(mod string, version *semver.Constraints) {
 	c.Mods[mod] = version
 }
 

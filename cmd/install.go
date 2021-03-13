@@ -7,7 +7,7 @@ import (
 )
 
 var installCmd = &cobra.Command{
-	Use:     "install [mod] [version]",
+	Use:     "install [mod]",
 	Aliases: []string{"add"},
 	Short:   "Install a mod",
 	Long:    "This command installs a mod and any mods that it depends on.",
@@ -30,7 +30,7 @@ var installCmd = &cobra.Command{
 		resolvedMods := graph.GetResolvedDependencies()
 		fmt.Printf("Resolved %d dependencies\n", len(resolvedMods))
 		for _, resolvedMod := range resolvedMods {
-			fmt.Printf("\t%s - %s\n", resolvedMod.Name, resolvedMod.Version)
+			fmt.Printf("\t%s - %s, installed: %v\n", resolvedMod.Name, resolvedMod.Version, workspace.IsModInstalled(resolvedMod.Name))
 		}
 
 		//modVersion, err := registry.GetModVersion(name, version)

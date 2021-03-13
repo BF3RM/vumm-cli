@@ -3,7 +3,20 @@ package workspace
 import (
 	"github.com/Masterminds/semver"
 	"github.com/vumm/cli/registry"
+	"strings"
 )
+
+var modExclusions = []string{"veniceext"}
+
+func shouldSkipModCheck(modName string) bool {
+	for _, excludedMod := range modExclusions {
+		if strings.ToLower(modName) == excludedMod {
+			return true
+		}
+	}
+
+	return false
+}
 
 type ResolvedModDependency struct {
 	Name        string
@@ -35,6 +48,10 @@ func (g *ModDependencyGraph) Resolve() (bool, []error) {
 
 		if len(resolvedVersion.Dependencies) > 0 {
 			for name, version := range resolvedVersion.Dependencies {
+				if shouldSkipModCheck(name) {
+					continue
+				}
+
 				constrains, err := semver.NewConstraint(version)
 				// Should never happen!
 				if err != nil {
@@ -55,6 +72,12 @@ func (g *ModDependencyGraph) Resolve() (bool, []error) {
 		}
 	}
 	return true, nil
+}
+
+func (g ModDependencyGraph) GetResolvedDependency(mod string) (ResolvedModDependency, bool) {
+	resolved, ok := g.resolved[mod]
+
+	return resolved, ok
 }
 
 func (g ModDependencyGraph) GetResolvedDependencies() []ResolvedModDependency {
