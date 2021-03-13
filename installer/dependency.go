@@ -1,23 +1,23 @@
-package workspace
+package installer
 
 import (
-	"github.com/Masterminds/semver"
+	"github.com/vumm/cli/common"
 	"strings"
 )
 
 type ModDependency struct {
 	Name               string
 	Tag                string
-	VersionConstraints *semver.Constraints
+	VersionConstraints *common.SemverConstraints
 }
 
 func ResolveModDependency(name string, version string) ModDependency {
 	var err error
 	var tag string
-	var constraints *semver.Constraints
+	var constraints *common.SemverConstraints
 
 	// First try to parse constraint
-	constraints, err = semver.NewConstraint(version)
+	constraints, err = common.NewSemverConstraints(version)
 
 	// Else set it as tag
 	if err != nil {

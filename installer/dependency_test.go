@@ -1,4 +1,4 @@
-package workspace
+package installer
 
 import (
 	"testing"

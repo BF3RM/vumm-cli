@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/vumm/cli/workspace"
+	"github.com/vumm/cli/installer"
 )
 
 var installCmd = &cobra.Command{
@@ -21,24 +21,30 @@ var installCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
-		graph := workspace.NewModDependencyGraph(workspace.ResolveModDependencyFromString(name))
-		resolved, errs := graph.Resolve()
-		if !resolved {
-			cobra.CheckErr(errs)
+		i, err := installer.NewInstaller()
+		if err != nil {
+			cobra.CheckErr(err)
 		}
 
-		resolvedMods := graph.GetResolvedDependencies()
-		fmt.Printf("Resolved %d dependencies\n", len(resolvedMods))
-		for _, resolvedMod := range resolvedMods {
-			fmt.Printf("\t%s - %s, installed: %v\n", resolvedMod.Name, resolvedMod.Version, workspace.IsModInstalled(resolvedMod.Name))
+		installedMods := i.GetInstalledMods()
+		fmt.Printf("Currently there are %d mod(s) installed\n", len(installedMods))
+		for _, installedMod := range installedMods {
+			fmt.Printf("\t%s - %s\n", installedMod.Name, installedMod.Version)
+		}
+		fmt.Println()
+
+		if i.HasMissingMods() {
+			missingMods := i.GetMissingMods()
+			fmt.Printf("Detected %d missing mod(s)\n", len(missingMods))
+
+			for _, missingMod := range missingMods {
+				fmt.Printf("\t%s - %s\n", missingMod.Name, missingMod.VersionConstraints)
+			}
+			fmt.Println()
 		}
 
-		//modVersion, err := registry.GetModVersion(name, version)
-		//if err != nil {
-		//	cobra.CheckErr(err)
-		//}
-		//fmt.Println(modVersion)
-
-		//print(workspace.GetInstalledMods())
+		if err = i.InstallMod(name); err != nil {
+			cobra.CheckErr(err)
+		}
 	},
 }

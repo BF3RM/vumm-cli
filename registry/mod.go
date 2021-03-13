@@ -3,6 +3,7 @@ package registry
 import (
 	"encoding/json"
 	"github.com/Masterminds/semver"
+	"github.com/vumm/cli/common"
 	"sort"
 )
 
@@ -67,7 +68,7 @@ func (m Mod) GetVersionByTag(tag string) (ModVersion, error) {
 }
 
 // GetLatestVersionByConstraints tries to find the latest version satisfying the constraints
-func (m *Mod) GetLatestVersionByConstraints(constraints *semver.Constraints) (ModVersion, error) {
+func (m *Mod) GetLatestVersionByConstraints(constraints *common.SemverConstraints) (ModVersion, error) {
 	// If versions are not sorted yet, do that now
 	if m.versions == nil {
 		m.versions = make(ModVersions, 0, len(m.Versions))

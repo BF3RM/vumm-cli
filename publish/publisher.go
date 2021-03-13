@@ -2,7 +2,6 @@ package publish
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/vumm/cli/common"
 	"github.com/vumm/cli/registry"
@@ -55,14 +54,9 @@ func (p *Publisher) Publish() error {
 	return nil
 }
 
-func (p *Publisher) loadMetadata() error {
-	file, err := os.Open(filepath.Join(p.cwd, "mod.test.json"))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return json.NewDecoder(file).Decode(&p.metadata)
+func (p *Publisher) loadMetadata() (err error) {
+	p.metadata, err = common.LoadModMetadata(filepath.Join(p.cwd, "mod.json"))
+	return err
 }
 
 func (p *Publisher) loadPackager() error {
