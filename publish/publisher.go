@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/vumm/cli/common"
 	"github.com/vumm/cli/registry"
+	"github.com/vumm/cli/tar"
 	"os"
 	"path/filepath"
 )
@@ -12,7 +13,7 @@ import (
 type Publisher struct {
 	cwd      string
 	metadata common.ModMetadata
-	packager Packager
+	packager tar.Packager
 }
 
 func NewPublisher() (Publisher, error) {
@@ -40,7 +41,7 @@ func (p *Publisher) Publish() error {
 	fmt.Println("Compressing mod to archive")
 
 	var buf bytes.Buffer
-	err := p.packager.Make(p.cwd, &buf)
+	err := p.packager.Compress(p.cwd, &buf)
 	if err != nil {
 		return err
 	}
@@ -60,13 +61,20 @@ func (p *Publisher) loadMetadata() (err error) {
 }
 
 func (p *Publisher) loadPackager() error {
+	p.packager = tar.NewPackager()
+
 	ignorer, err := CompileFileIgnorer(p.cwd)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+
 		return err
 	}
 
-	p.packager = NewTarGZPackager()
-	p.packager.SetIgnorer(ignorer)
+	p.packager.SetFileFilter(func(filePath string) bool {
+		return !ignorer.Matches(filePath)
+	})
 
 	return nil
 }
