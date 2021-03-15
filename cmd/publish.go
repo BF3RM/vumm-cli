@@ -16,23 +16,5 @@ var publishCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 		publisher.Publish()
-
-		//ignorer, err := publish.CompileFileIgnorerCwd()
-		//if err != nil {
-		//	cobra.CheckErr(err)
-		//}
-		//
-		//// TEST
-		//cwd, err := os.Getwd()
-		//if err != nil {
-		//	cobra.CheckErr(err)
-		//}
-		//
-		//format := publish.NewTarGZPackager()
-		//format.SetIgnorer(ignorer)
-		//err = format.Make(cwd, "archive.tar.gz")
-		//if err != nil {
-		//	cobra.CheckErr(err)
-		//}
 	},
 }

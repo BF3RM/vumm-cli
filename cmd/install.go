@@ -26,23 +26,6 @@ var installCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		installedMods := i.GetInstalledMods()
-		fmt.Printf("Currently there are %d mod(s) installed\n", len(installedMods))
-		for _, installedMod := range installedMods {
-			fmt.Printf("\t%s - %s\n", installedMod.Name, installedMod.Version)
-		}
-		fmt.Println()
-
-		if i.HasMissingMods() {
-			missingMods := i.GetMissingMods()
-			fmt.Printf("Detected %d missing mod(s)\n", len(missingMods))
-
-			for _, missingMod := range missingMods {
-				fmt.Printf("\t%s - %s\n", missingMod.Name, missingMod.VersionConstraints)
-			}
-			fmt.Println()
-		}
-
 		if err = i.InstallMod(name); err != nil {
 			cobra.CheckErr(err)
 		}

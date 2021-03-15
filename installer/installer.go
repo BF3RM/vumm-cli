@@ -2,7 +2,10 @@ package installer
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/registry"
+	"github.com/vumm/cli/tar"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,6 +15,7 @@ type Installer struct {
 	cwd       string
 	installed map[string]common.ModMetadata
 	missing   map[string]ModDependency
+	packager  tar.Packager
 }
 
 func NewInstaller() (*Installer, error) {
@@ -24,6 +28,7 @@ func NewInstaller() (*Installer, error) {
 		cwd:       cwd,
 		installed: map[string]common.ModMetadata{},
 		missing:   map[string]ModDependency{},
+		packager:  tar.NewPackager(),
 	}
 
 	if err = installer.loadInstalledMods(); err != nil {
@@ -65,16 +70,69 @@ func (i Installer) GetMissingMods() []ModDependency {
 
 func (i Installer) InstallMod(mod string) error {
 	dep := ResolveModDependencyFromString(mod)
+
+	fmt.Printf("Installing %s\n", dep.Name)
+
 	missing := i.GetMissingMods()
 	missing = append(missing, dep)
 
-	resolver := newDependencyResolver(missing...)
+	resolver := newDependencyResolver(i.installed, missing...)
 
 	if err := resolver.Resolve(); err != nil {
 		return err
 	}
 
-	// TODO: Download/install the resolved dependencies
+	resolvedMods := resolver.GetResolvedMods()
+
+	if len(resolvedMods) == 0 {
+		fmt.Printf("%s and it's dependencies are already up to date\n", dep.Name)
+		return nil
+	}
+
+	fmt.Printf("Installing %d mod(s)\n", len(resolvedMods))
+
+	for _, mod := range resolver.GetResolvedMods() {
+		fmt.Printf("\t%s\n", mod)
+
+		if mod.Status != DependencyStatusInstalled {
+			if err := i.installModDependency(mod); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (i Installer) installModDependency(dep ResolvedModDependency) error {
+	reader, err := registry.FetchModVersionArchive(dep.Name, dep.Version)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+
+	modFolder := filepath.Join(i.cwd, "Mods", dep.Name)
+
+	// Remove old if already exists
+	if _, err := os.Stat(modFolder); err != nil {
+		if !os.IsNotExist(err) {
+			return nil
+		}
+
+		if err := os.MkdirAll(modFolder, os.ModeDir); err != nil {
+			return fmt.Errorf("%s: failed creating mod folder: %v", modFolder, err)
+		}
+	} else {
+		// TODO: Remove old content...
+		//os.RemoveAll()
+	}
+
+	err = i.packager.Decompress(reader, modFolder)
+	if err != nil {
+		return fmt.Errorf("%s: failed decompressing mod: %v", modFolder, err)
+	}
+
+	// TODO: Enable in ModList.txt
 
 	return nil
 }
@@ -114,7 +172,6 @@ func (i *Installer) loadInstalledMods() error {
 }
 
 func (i *Installer) loadMissingMods() {
-
 	for _, mod := range i.installed {
 		// TODO: Check for outdated mods as well
 		for dep, constraints := range mod.Dependencies {

@@ -1,19 +1,54 @@
 package installer
 
 import (
+	"fmt"
+	"github.com/Masterminds/semver"
 	"github.com/vumm/cli/common"
 	"github.com/vumm/cli/registry"
 )
 
-type dependencyResolver struct {
-	unresolved []ModDependency
-	resolved   map[string]registry.ModVersion
+type ResolvedModDependencyStatus uint8
+
+func (s ResolvedModDependencyStatus) String() string {
+	switch s {
+	case DependencyStatusInstalled:
+		return "up to date"
+	case DependencyStatusOutdated:
+		return "outdated"
+	case DependencyStatusNew:
+		return "not installed"
+	}
+	return "unknown"
 }
 
-func newDependencyResolver(deps ...ModDependency) dependencyResolver {
+const (
+	DependencyStatusNew ResolvedModDependencyStatus = iota
+	DependencyStatusOutdated
+	DependencyStatusInstalled
+)
+
+type ResolvedModDependency struct {
+	Name    string
+	Version *semver.Version
+	Status  ResolvedModDependencyStatus
+}
+
+func (d ResolvedModDependency) String() string {
+	return fmt.Sprintf("%s@%s - %s", d.Name, d.Version, d.Status)
+}
+
+type dependencyResolver struct {
+	cwd        string
+	installed  map[string]common.ModMetadata
+	unresolved []ModDependency
+	resolved   map[string]ResolvedModDependency
+}
+
+func newDependencyResolver(installed map[string]common.ModMetadata, deps ...ModDependency) dependencyResolver {
 	return dependencyResolver{
+		installed:  installed,
 		unresolved: deps,
-		resolved:   map[string]registry.ModVersion{},
+		resolved:   map[string]ResolvedModDependency{},
 	}
 }
 
@@ -44,13 +79,25 @@ func (r *dependencyResolver) Resolve() error {
 			}
 		}
 
-		r.resolved[resolvedVersion.Name] = resolvedVersion
+		status := DependencyStatusNew
+		if installed, ok := r.installed[resolvedVersion.Name]; ok {
+			status = DependencyStatusInstalled
+			if installed.Version.LessThan(resolvedVersion.Version) {
+				status = DependencyStatusOutdated
+			}
+		}
+
+		r.resolved[resolvedVersion.Name] = ResolvedModDependency{
+			Name:    resolvedVersion.Name,
+			Version: resolvedVersion.Version,
+			Status:  status,
+		}
 	}
 	return nil
 }
 
-func (r dependencyResolver) GetResolvedMods() []registry.ModVersion {
-	res := make([]registry.ModVersion, 0, len(r.resolved))
+func (r dependencyResolver) GetResolvedMods() []ResolvedModDependency {
+	res := make([]ResolvedModDependency, 0, len(r.resolved))
 	for _, mod := range r.resolved {
 		res = append(res, mod)
 	}
