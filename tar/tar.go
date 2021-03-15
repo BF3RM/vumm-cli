@@ -88,13 +88,17 @@ func untarFromReader(reader *tar.Reader, dest string) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			return mkdir(filepath.Join(dest, header.Name))
+			err = mkdir(filepath.Join(dest, header.Name))
 		case tar.TypeReg:
-			return writeNewFile(filepath.Join(dest, header.Name), reader, header.FileInfo().Mode())
+			err = writeNewFile(filepath.Join(dest, header.Name), reader, header.FileInfo().Mode())
 		case tar.TypeSymlink:
-			return writeNewSymbolicLink(filepath.Join(dest, header.Name), header.Linkname)
+			err = writeNewSymbolicLink(filepath.Join(dest, header.Name), header.Linkname)
 		default:
 			return fmt.Errorf("%s: unknown type flag: %c", header.Name, header.Typeflag)
+		}
+
+		if err != nil {
+			return err
 		}
 	}
 	return nil
