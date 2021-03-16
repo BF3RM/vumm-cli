@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/vumm/cli/common"
 	"github.com/vumm/cli/workspace"
 )
 
@@ -9,9 +10,10 @@ var licenseKey string
 var workspacePath string
 
 var rootCmd = &cobra.Command{
-	Use:   "vumm",
-	Short: "A mod workspace for Venice Unleashed",
-	Long:  "Install and manage your favourite Venice Unleashed mods.",
+	Use:     "vumm",
+	Short:   "A mod workspace for Venice Unleashed",
+	Long:    "Install and manage your favourite Venice Unleashed mods.",
+	Version: common.GetVersion(),
 }
 
 func Execute() error {

@@ -111,4 +111,7 @@ modules.xml
 # Sonarlint plugin
 .idea/sonarlint
 
-# End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,go
+# Builds
+dist/
+
+# End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,godist/
