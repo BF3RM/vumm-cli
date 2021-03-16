@@ -38,7 +38,8 @@ func init() {
 
 	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(uninstallCmd)
-	rootCmd.AddCommand(publishCmd)
+	rootCmd.AddCommand(newPublishCmd().cmd)
+	rootCmd.AddCommand(unpublishCmd)
 }
 
 func initWorkspace() {

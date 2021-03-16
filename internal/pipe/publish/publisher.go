@@ -9,24 +9,25 @@ import (
 )
 
 type Pipe struct {
+	Tag string
 }
 
 func (Pipe) String() string {
 	return "publisher"
 }
 
-func (Pipe) Run(ctx *context.Context) error {
+func (p Pipe) Run(ctx *context.Context) error {
 	var archiveBuf bytes.Buffer
 	if !ctx.ValueAs("archive", &archiveBuf) {
 		return fmt.Errorf("missing archive buffer")
 	}
 
 	log.Info("publishing to registry")
-	err := registry.PublishMod(ctx.Project.Metadata, "latest", &archiveBuf)
+	err := registry.PublishMod(ctx.Project.Metadata, p.Tag, &archiveBuf)
 	if err != nil {
 		return err
 	}
-	log.Info("published successfully")
+	log.Infof("published %s successfully", ctx.Project.Metadata)
 
 	return nil
 }
