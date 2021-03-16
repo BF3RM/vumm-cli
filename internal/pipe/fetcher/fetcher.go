@@ -3,6 +3,7 @@ package fetcher
 import (
 	"fmt"
 	"github.com/apex/log"
+	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/context"
 	"github.com/vumm/cli/internal/registry"
 )
@@ -47,7 +48,10 @@ func (p Pipe) Run(ctx *context.Context) error {
 
 		if len(version.Dependencies) > 0 {
 			for name, version := range version.Dependencies {
-				// TODO: Filter out internal mods
+				if common.IsInternalMod(name) {
+					log.Debugf("skipped %s, is internal mod", name)
+					continue
+				}
 
 				dep := resolveModDependency(name, version)
 				shouldAdd, err := p.checkCanAddDependency(ctx, dep)
