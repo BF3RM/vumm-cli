@@ -18,16 +18,18 @@ var installCmd = &cobra.Command{
 		return nil
 	},
 
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 
 		i, err := installer.NewInstaller()
 		if err != nil {
-			cobra.CheckErr(err)
+			return err
 		}
 
 		if err = i.InstallMod(name); err != nil {
-			cobra.CheckErr(err)
+			return err
 		}
+
+		return nil
 	},
 }

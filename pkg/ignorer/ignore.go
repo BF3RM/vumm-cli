@@ -1,19 +1,33 @@
-package publish
+package ignorer
 
 import (
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 )
+
+type FileIgnorer interface {
+	Matches(filePath string) bool
+}
+
+type noopIgnorer struct {
+}
+
+func (noopIgnorer) Matches(filePath string) bool {
+	return false
+}
+
+func NOOP() FileIgnorer {
+	return &noopIgnorer{}
+}
 
 type ignorePattern struct {
 	regex  *regexp.Regexp
 	negate bool
 }
 
-type FileIgnorer struct {
+type fileIgnorer struct {
 	patterns []*ignorePattern
 }
 
@@ -89,13 +103,13 @@ func parseRegexFromLine(line string) (*regexp.Regexp, bool) {
 	return pattern, negatePattern
 }
 
-func CompileFileIgnorer(filePath string) (*FileIgnorer, error) {
-	bs, err := ioutil.ReadFile(filepath.Join(filePath, ".vummignore"))
+func CompileFileIgnorer(filePath string) (FileIgnorer, error) {
+	bs, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	ignoreFile := &FileIgnorer{}
+	ignoreFile := &fileIgnorer{}
 	lines := strings.Split(string(bs), "\n")
 
 	for _, line := range lines {
@@ -109,7 +123,7 @@ func CompileFileIgnorer(filePath string) (*FileIgnorer, error) {
 	return ignoreFile, nil
 }
 
-func (ignorer FileIgnorer) Matches(filePath string) bool {
+func (ignorer fileIgnorer) Matches(filePath string) bool {
 	filePath = strings.ReplaceAll(filePath, string(os.PathSeparator), "/")
 
 	matchesPath := false

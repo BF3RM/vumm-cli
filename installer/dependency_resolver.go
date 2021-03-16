@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/Masterminds/semver"
 	"github.com/vumm/cli/common"
-	"github.com/vumm/cli/registry"
+	"github.com/vumm/cli/internal/registry"
 )
 
 type ResolvedModDependencyStatus uint8
