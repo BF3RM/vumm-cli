@@ -13,6 +13,7 @@ type Context struct {
 
 	Project          *project.Project
 	WorkingDirectory string
+	EnabledMods      []string
 	Dependencies     map[string]registry.ModVersion
 
 	values map[interface{}]interface{}
