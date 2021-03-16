@@ -14,8 +14,9 @@ import (
 )
 
 type publishCmd struct {
-	cmd *cobra.Command
-	tag string
+	cmd     *cobra.Command
+	tag     string
+	timeout time.Duration
 }
 
 func newPublishCmd() *publishCmd {
@@ -29,7 +30,7 @@ func newPublishCmd() *publishCmd {
 			log.Info("publishing...")
 			start := time.Now()
 
-			ctx, cancel := context.NewWithTimeout(30 * time.Minute)
+			ctx, cancel := context.NewWithTimeout(root.timeout)
 			defer cancel()
 
 			err := ctrlc.Default.Run(ctx, func() error {
@@ -45,7 +46,8 @@ func newPublishCmd() *publishCmd {
 		},
 	}
 
-	root.cmd.Flags().StringVarP(&root.tag, "tag", "t", "latest", "version tag, latest by default")
+	root.cmd.Flags().StringVarP(&root.tag, "tag", "t", "latest", "The version tag")
+	root.cmd.Flags().DurationVar(&root.timeout, "timeout", 30*time.Minute, "Timeout for the publish process")
 
 	return root
 }

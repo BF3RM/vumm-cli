@@ -1,7 +1,7 @@
 package registry
 
 import (
-	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/internal/common"
 )
 
 func GetMod(mod string) (res Mod, err error) {

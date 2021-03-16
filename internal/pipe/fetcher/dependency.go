@@ -1,17 +1,17 @@
-package installer
+package fetcher
 
 import (
-	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/internal/common"
 	"strings"
 )
 
-type ModDependency struct {
+type modDependency struct {
 	Name               string
 	Tag                string
 	VersionConstraints *common.SemverConstraints
 }
 
-func ResolveModDependency(name string, version string) ModDependency {
+func resolveModDependency(name string, version string) modDependency {
 	var err error
 	var tag string
 	var constraints *common.SemverConstraints
@@ -24,14 +24,14 @@ func ResolveModDependency(name string, version string) ModDependency {
 		tag = version
 	}
 
-	return ModDependency{
+	return modDependency{
 		Name:               name,
 		Tag:                tag,
 		VersionConstraints: constraints,
 	}
 }
 
-func ResolveModDependencyFromString(mod string) ModDependency {
+func resolveModDependencyFromString(mod string) modDependency {
 	parts := strings.SplitN(mod, "@", 2)
 
 	version := "latest"
@@ -39,5 +39,5 @@ func ResolveModDependencyFromString(mod string) ModDependency {
 		version = parts[1]
 	}
 
-	return ResolveModDependency(parts[0], version)
+	return resolveModDependency(parts[0], version)
 }

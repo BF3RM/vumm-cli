@@ -3,7 +3,7 @@ package registry
 import (
 	"encoding/json"
 	"github.com/Masterminds/semver"
-	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/internal/common"
 	"sort"
 )
 

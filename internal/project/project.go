@@ -2,7 +2,7 @@ package project
 
 import (
 	"github.com/apex/log"
-	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/pkg/ignorer"
 	"os"
 	"path/filepath"

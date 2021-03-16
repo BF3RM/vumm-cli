@@ -3,13 +3,17 @@ package context
 import (
 	"context"
 	"github.com/vumm/cli/internal/project"
+	"github.com/vumm/cli/internal/registry"
 	"reflect"
 	"time"
 )
 
 type Context struct {
 	context.Context
-	Project *project.Project
+
+	Project          *project.Project
+	WorkingDirectory string
+	Dependencies     map[string]registry.ModVersion
 
 	values map[interface{}]interface{}
 }
@@ -23,15 +27,17 @@ func NewWithTimeout(duration time.Duration) (*Context, context.CancelFunc) {
 	}, cancel
 }
 
-//
+// SetValue adds a value to the context for later usage
 func (ctx *Context) SetValue(key, val interface{}) {
 	ctx.values[key] = val
 }
 
+// Value tries to lookup a value within the context
 func (ctx *Context) Value(key interface{}) interface{} {
 	return ctx.values[key]
 }
 
+// ValueAs tries to lookup a value within the context and assign it to target
 func (ctx *Context) ValueAs(key, target interface{}) bool {
 	val, ok := ctx.values[key]
 	if !ok {

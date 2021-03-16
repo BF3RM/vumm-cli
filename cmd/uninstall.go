@@ -6,8 +6,8 @@ import (
 )
 
 var uninstallCmd = &cobra.Command{
-	Use:     "uninstall [mod]",
-	Aliases: []string{"remove"},
+	Use:     "uninstall <mod>",
+	Aliases: []string{"remove", "u"},
 	Short:   "Remove a installed mod",
 	Long:    "This command uninstalls a mods and any leftover dependencies",
 	Args: func(cmd *cobra.Command, args []string) error {

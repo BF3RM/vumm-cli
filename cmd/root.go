@@ -4,7 +4,7 @@ import (
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
 	"github.com/spf13/cobra"
-	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/workspace"
 	"os"
 )
@@ -36,7 +36,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&workspacePath, "workspace", "w", "", "path to your server instance folder")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 
-	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(newInstallCmd().cmd)
 	rootCmd.AddCommand(uninstallCmd)
 	rootCmd.AddCommand(newPublishCmd().cmd)
 	rootCmd.AddCommand(unpublishCmd)

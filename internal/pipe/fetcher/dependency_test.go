@@ -1,4 +1,4 @@
-package installer
+package fetcher
 
 import (
 	"testing"
@@ -24,7 +24,7 @@ func TestResolveModDependency(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		dep := ResolveModDependency(test.name, test.version)
+		dep := resolveModDependency(test.name, test.version)
 		if dep.Tag != test.expectedTag {
 			t.Errorf("Tag %s not equal to expected %s", dep.Tag, test.expectedTag)
 		}
@@ -43,7 +43,7 @@ func TestResolveModDependencyFromString(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		dep := ResolveModDependencyFromString(test.nameAndVersion)
+		dep := resolveModDependencyFromString(test.nameAndVersion)
 		if dep.Tag != test.expectedTag {
 			t.Errorf("Tag %s not equal to expected %s", dep.Tag, test.expectedTag)
 		}

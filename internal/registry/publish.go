@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/vumm/cli/common"
+	"github.com/vumm/cli/internal/common"
 	"io"
 	"mime/multipart"
 	"net/http"
