@@ -7,7 +7,7 @@ import (
 )
 
 func UnpublishModVersion(mod string, version *semver.Version) error {
-	req, err := http.NewRequest(http.MethodDelete, fmt.Sprintf("%s/mods/%s/%s", Url, mod, version), nil)
+	req, err := newRequest(http.MethodDelete, fmt.Sprintf("/mods/%s/%s", mod, version), nil)
 	if err != nil {
 		return err
 	}

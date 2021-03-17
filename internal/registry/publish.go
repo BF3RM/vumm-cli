@@ -44,9 +44,9 @@ func PublishMod(metadata common.ModMetadata, tag string, reader io.Reader) error
 	}
 	w.Close()
 
-	publishUrl := fmt.Sprintf("%s/mods/%s/%s", Url, metadata.Name, metadata.Version)
+	publishUrl := fmt.Sprintf("/mods/%s/%s", metadata.Name, metadata.Version)
 
-	req, err := http.NewRequest(http.MethodPut, publishUrl, &buf)
+	req, err := newRequest(http.MethodPut, publishUrl, &buf)
 	if err != nil {
 		return err
 	}

@@ -2,12 +2,17 @@ package registry
 
 import "errors"
 
-var Url = "https://vumm.bf3reality.com/api/v1"
+var registryUrl = "https://vumm.bf3reality.com/api/v1"
+var registryToken = ""
 
 var (
 	ErrModVersionNotFound = errors.New("mod version was not found")
 )
 
 func SetRegistryUrl(url string) {
-	Url = url
+	registryUrl = url
+}
+
+func SetRegistryAccessToken(accessToken string) {
+	registryToken = accessToken
 }

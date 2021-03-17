@@ -18,6 +18,7 @@ type rootCmd struct {
 	cmd      *cobra.Command
 	registry string
 	verbose  bool
+	token    string
 }
 
 func (cmd *rootCmd) Execute() {
@@ -42,6 +43,10 @@ func newRootCmd() *rootCmd {
 				registry.SetRegistryUrl(root.registry)
 			}
 
+			if root.token != "" {
+				registry.SetRegistryAccessToken(root.token)
+			}
+
 			if root.verbose {
 				log.SetLevel(log.DebugLevel)
 			}
@@ -49,6 +54,7 @@ func newRootCmd() *rootCmd {
 	}
 
 	root.cmd.PersistentFlags().StringVar(&root.registry, "registry", "", "Custom registry url")
+	root.cmd.PersistentFlags().StringVar(&root.token, "token", "", "A access token to access the registry")
 	root.cmd.PersistentFlags().BoolVarP(&root.verbose, "verbose", "v", false, "Enable verbose output")
 
 	root.cmd.AddCommand(newInstallCmd().cmd)
