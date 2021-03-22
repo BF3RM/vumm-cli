@@ -2,7 +2,7 @@ package registry
 
 import "errors"
 
-var registryUrl = "https://vumm.bf3reality.com/api/v1"
+var registryUrl = "https://vumm.bf3reality.com/api"
 var registryToken = ""
 
 var (
