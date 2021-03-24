@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type FileIgnorer interface {
+type Ignorer interface {
 	Matches(filePath string) bool
 }
 
@@ -18,7 +18,7 @@ func (noopIgnorer) Matches(filePath string) bool {
 	return false
 }
 
-func NOOP() FileIgnorer {
+func NOOP() Ignorer {
 	return &noopIgnorer{}
 }
 
@@ -27,7 +27,7 @@ type ignorePattern struct {
 	negate bool
 }
 
-type fileIgnorer struct {
+type patternIgnorer struct {
 	patterns []*ignorePattern
 }
 
@@ -103,27 +103,31 @@ func parseRegexFromLine(line string) (*regexp.Regexp, bool) {
 	return pattern, negatePattern
 }
 
-func CompileFileIgnorer(filePath string) (FileIgnorer, error) {
-	bs, err := ioutil.ReadFile(filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	ignoreFile := &fileIgnorer{}
-	lines := strings.Split(string(bs), "\n")
+func CompileIgnorerFromLines(lines ...string) Ignorer {
+	ignorer := &patternIgnorer{}
 
 	for _, line := range lines {
 		regex, negate := parseRegexFromLine(line)
 		if regex != nil {
 			pattern := &ignorePattern{regex, negate}
-			ignoreFile.patterns = append(ignoreFile.patterns, pattern)
+			ignorer.patterns = append(ignorer.patterns, pattern)
 		}
 	}
 
-	return ignoreFile, nil
+	return ignorer
 }
 
-func (ignorer fileIgnorer) Matches(filePath string) bool {
+func CompileIgnorerFromFile(filePath string, additionalLines ...string) (Ignorer, error) {
+	bs, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	lines := append(strings.Split(string(bs), "\n"), additionalLines...)
+	return CompileIgnorerFromLines(lines...), nil
+}
+
+func (ignorer patternIgnorer) Matches(filePath string) bool {
 	filePath = strings.ReplaceAll(filePath, string(os.PathSeparator), "/")
 
 	matchesPath := false

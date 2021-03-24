@@ -33,10 +33,6 @@ func tarballToWriter(src string, writer *tar.Writer, filter FileFilter) error {
 			return nil
 		}
 
-		if filter != nil && !filter(path) {
-			return nil
-		}
-
 		header, err := tar.FileInfoHeader(info, path)
 		if err != nil {
 			return fmt.Errorf("%s: making header: %v", path, err)
@@ -49,6 +45,10 @@ func tarballToWriter(src string, writer *tar.Writer, filter FileFilter) error {
 
 		if info.IsDir() {
 			header.Name += "/"
+		}
+
+		if filter != nil && !filter(header.Name) {
+			return nil
 		}
 
 		err = writer.WriteHeader(header)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/vumm/cli/internal/common"
 	"io"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 )
@@ -59,6 +60,8 @@ func PublishMod(metadata common.ModMetadata, tag string, reader io.Reader) error
 	}
 
 	if res.StatusCode != http.StatusCreated {
+		raw, _ := ioutil.ReadAll(res.Body)
+		fmt.Println(string(raw))
 		return fmt.Errorf("publish rejected: %s", res.Status)
 	}
 
