@@ -4,6 +4,7 @@ import (
 	"github.com/apex/log"
 	"github.com/apex/log/handlers/cli"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/registry"
 	"os"
@@ -15,10 +16,8 @@ func Execute() {
 }
 
 type rootCmd struct {
-	cmd      *cobra.Command
-	registry string
-	verbose  bool
-	token    string
+	cmd     *cobra.Command
+	verbose bool
 }
 
 func (cmd *rootCmd) Execute() {
@@ -29,6 +28,8 @@ func (cmd *rootCmd) Execute() {
 }
 
 func newRootCmd() *rootCmd {
+	cobra.OnInitialize(initConfig)
+
 	root := &rootCmd{}
 
 	root.cmd = &cobra.Command{
@@ -39,12 +40,14 @@ func newRootCmd() *rootCmd {
 		SilenceUsage:  true,
 		Version:       common.GetVersion(),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			if root.registry != "" {
-				registry.SetRegistryUrl(root.registry)
+			registryUrl := viper.GetString("registry")
+			if registryUrl != "" {
+				registry.SetRegistryUrl(registryUrl)
 			}
 
-			if root.token != "" {
-				registry.SetRegistryAccessToken(root.token)
+			token := viper.GetString("token")
+			if token != "" {
+				registry.SetRegistryAccessToken(token)
 			}
 
 			if root.verbose {
@@ -53,9 +56,12 @@ func newRootCmd() *rootCmd {
 		},
 	}
 
-	root.cmd.PersistentFlags().StringVar(&root.registry, "registry", "", "Custom registry url")
-	root.cmd.PersistentFlags().StringVar(&root.token, "token", "", "A access token to access the registry")
+	root.cmd.PersistentFlags().String("registry", "", "Custom registry url")
+	root.cmd.PersistentFlags().String("token", "", "A access token to access the registry")
 	root.cmd.PersistentFlags().BoolVarP(&root.verbose, "verbose", "v", false, "Enable verbose output")
+
+	cobra.CheckErr(viper.BindPFlag("registry", root.cmd.PersistentFlags().Lookup("registry")))
+	cobra.CheckErr(viper.BindPFlag("token", root.cmd.PersistentFlags().Lookup("token")))
 
 	root.cmd.AddCommand(newInstallCmd().cmd)
 	root.cmd.AddCommand(newPublishCmd().cmd)
@@ -63,4 +69,21 @@ func newRootCmd() *rootCmd {
 	root.cmd.AddCommand(uninstallCmd)
 
 	return root
+}
+
+func initConfig() {
+	home, err := os.UserHomeDir()
+	cobra.CheckErr(err)
+
+	viper.AddConfigPath(home)
+	viper.SetConfigType("json")
+	viper.SetConfigFile(".vummrc")
+	viper.SetEnvPrefix("vumm")
+	viper.AutomaticEnv()
+
+	if err := viper.ReadInConfig(); err != nil {
+		if !os.IsNotExist(err) {
+			cobra.CheckErr(err)
+		}
+	}
 }

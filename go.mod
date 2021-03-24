@@ -7,4 +7,5 @@ require (
 	github.com/apex/log v1.9.0
 	github.com/caarlos0/ctrlc v1.0.0
 	github.com/spf13/cobra v1.1.3
+	github.com/spf13/viper v1.7.1
 )
