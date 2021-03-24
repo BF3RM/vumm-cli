@@ -2,6 +2,7 @@ package archiver
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/apex/log"
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/context"
@@ -33,8 +34,9 @@ func (p Pipe) Run(ctx *context.Context) error {
 	log.Infof("compressed files to archive of %s", common.ByteCountToHuman(int64(buf.Len())))
 
 	if p.Store {
-		log.WithField("file", "archive.tar.gz").Infof("saving archive")
-		file, err := os.Create(filepath.Join(ctx.WorkingDirectory, "archive.tar.gz"))
+		fileName := fmt.Sprintf("%s-%s.tgz", ctx.Project.Metadata.Name, ctx.Project.Metadata.Version)
+		log.WithField("file", fileName).Infof("saving archive")
+		file, err := os.Create(filepath.Join(ctx.WorkingDirectory, fileName))
 		if err != nil {
 			return err
 		}
