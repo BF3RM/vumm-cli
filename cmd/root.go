@@ -78,12 +78,12 @@ func initConfig() {
 
 	viper.AddConfigPath(home)
 	viper.SetConfigType("json")
-	viper.SetConfigFile(".vummrc")
+	viper.SetConfigName(".vummrc")
 	viper.SetEnvPrefix("vumm")
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		if !os.IsNotExist(err) {
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			cobra.CheckErr(err)
 		}
 	}
