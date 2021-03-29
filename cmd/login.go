@@ -13,14 +13,22 @@ import (
 )
 
 type loginCmd struct {
-	cmd *cobra.Command
+	tokenType string
+	cmd       *cobra.Command
 }
 
 func newLoginCmd() *loginCmd {
 	root := &loginCmd{}
 	root.cmd = &cobra.Command{
-		Use: "login",
+		Use:   "login",
+		Short: "Login with username and password",
+		Long:  "Login with a username and password so you can publish your mod",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			tokenType := registry.AccessTokenTypePublish
+			if root.tokenType == "readonly" {
+				tokenType = registry.AccessTokenTypeReadonly
+			}
+
 			reader := bufio.NewReader(os.Stdin)
 
 			fmt.Print("Username: ")
@@ -37,7 +45,7 @@ func newLoginCmd() *loginCmd {
 			fmt.Println()
 
 			fmt.Println("Logging in...")
-			token, err := registry.Login(strings.TrimSpace(username), strings.TrimSpace(string(bytePassword)), registry.AccessTokenTypeReadonly)
+			token, err := registry.Login(strings.TrimSpace(username), strings.TrimSpace(string(bytePassword)), tokenType)
 			if err != nil {
 				return err
 			}
@@ -54,6 +62,8 @@ func newLoginCmd() *loginCmd {
 			return nil
 		},
 	}
+
+	root.cmd.Flags().StringVar(&root.tokenType, "type", "publish", "Type of token to be generated (publish, readonly)")
 
 	return root
 }
