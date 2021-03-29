@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/vumm/cli/internal/project"
 	"github.com/vumm/cli/internal/registry"
+	"github.com/vumm/cli/internal/workspace"
 	"reflect"
 	"time"
 )
@@ -13,7 +14,7 @@ type Context struct {
 
 	Project          *project.Project
 	WorkingDirectory string
-	EnabledMods      []string
+	ModList          *workspace.ModList
 	Dependencies     map[string]registry.ModVersion
 
 	values map[interface{}]interface{}

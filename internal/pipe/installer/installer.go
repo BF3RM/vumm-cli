@@ -1,17 +1,16 @@
 package installer
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/apex/log"
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/context"
 	"github.com/vumm/cli/internal/middleware"
 	"github.com/vumm/cli/internal/registry"
+	"github.com/vumm/cli/internal/workspace"
 	"github.com/vumm/cli/pkg/tar"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -40,9 +39,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 		}
 	}
 
-	p.updateModList(ctx)
-
-	return nil
+	return p.updateModList(ctx)
 }
 
 func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, version registry.ModVersion) error {
@@ -79,7 +76,7 @@ func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, ver
 		}
 		log.WithField("time", time.Since(start).Truncate(time.Millisecond)).Debugf("extracted archive")
 
-		p.addToEnabledMods(ctx, version.Name)
+		ctx.ModList.EnableMod(version.Name)
 
 		return nil
 	})(ctx)
@@ -88,30 +85,11 @@ func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, ver
 func (p Pipe) loadModList(ctx *context.Context) error {
 	log.WithField("file", "ModList.txt").Infof("loading")
 
-	file, err := os.Open(filepath.Join(ctx.WorkingDirectory, "ModList.txt"))
+	modList, err := workspace.TryLoadModList(ctx.WorkingDirectory)
 	if err != nil {
-		if os.IsNotExist(err) {
-			log.Warn("ModList.txt not found")
-			return nil
-		}
-
 		return err
 	}
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		modName := strings.ToLower(strings.TrimSpace(scanner.Text()))
-		// Skip disabled mods
-		// TODO: Actually save these somewhere, we are replacing the ModList.txt
-		if strings.HasPrefix(modName, "#") {
-			continue
-		}
-
-		p.addToEnabledMods(ctx, strings.ToLower(modName))
-	}
-	if err = scanner.Err(); err != nil {
-		return err
-	}
+	ctx.ModList = modList
 
 	return nil
 }
@@ -119,37 +97,5 @@ func (p Pipe) loadModList(ctx *context.Context) error {
 func (p Pipe) updateModList(ctx *context.Context) error {
 	log.WithField("file", "ModList.txt").Infof("updating")
 
-	tmpFilePath := filepath.Join(ctx.WorkingDirectory, "ModList.txt.new")
-	file, err := os.Create(tmpFilePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	writer := bufio.NewWriter(file)
-
-	for _, enabledMod := range ctx.EnabledMods {
-		if _, err = writer.WriteString(fmt.Sprintf("%s\n", enabledMod)); err != nil {
-			return err
-		}
-	}
-	if err = writer.Flush(); err != nil {
-		return err
-	}
-
-	if err = os.Rename(tmpFilePath, filepath.Join(ctx.WorkingDirectory, "ModList.txt")); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (Pipe) addToEnabledMods(ctx *context.Context, mod string) {
-	for _, enabledMod := range ctx.EnabledMods {
-		if enabledMod == mod {
-			return
-		}
-	}
-
-	ctx.EnabledMods = append(ctx.EnabledMods, mod)
+	return ctx.ModList.Save()
 }
