@@ -67,6 +67,7 @@ func newRootCmd() *rootCmd {
 	root.cmd.AddCommand(newPublishCmd().cmd)
 	root.cmd.AddCommand(newUnpublishCmd().cmd)
 	root.cmd.AddCommand(newPackCmd().cmd)
+	root.cmd.AddCommand(newLoginCmd().cmd)
 	root.cmd.AddCommand(uninstallCmd)
 
 	return root
@@ -78,7 +79,7 @@ func initConfig() {
 
 	viper.AddConfigPath(home)
 	viper.SetConfigType("json")
-	viper.SetConfigName(".vummrc")
+	viper.SetConfigName(".vumm")
 	viper.SetEnvPrefix("vumm")
 	viper.AutomaticEnv()
 

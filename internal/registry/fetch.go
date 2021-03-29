@@ -17,6 +17,8 @@ func FetchModVersionArchive(mod string, version *semver.Version) (io.ReadCloser,
 	if err != nil {
 		return nil, 0, err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != http.StatusOK {
 		return nil, 0, fmt.Errorf("fetch archive rejected: %s", res.Status)
 	}

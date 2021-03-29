@@ -15,11 +15,12 @@ func GetMod(mod string) (result Mod, err error) {
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != http.StatusOK {
 		err = fmt.Errorf("get rejected: %s", res.Status)
 		return
 	}
-	defer res.Body.Close()
 
 	err = json.NewDecoder(res.Body).Decode(&result)
 	return
