@@ -27,7 +27,32 @@ type AccessToken struct {
 	CreatedAt time.Time       `json:"createdAt"`
 }
 
+func ParseTokenType(in string) (tokenType AccessTokenType, err error) {
+	if in == "" {
+		return AccessTokenTypePublish, nil
+	}
+
+	switch in {
+	case "readonly":
+		tokenType = AccessTokenTypeReadonly
+	case "publish":
+		tokenType = AccessTokenTypePublish
+	default:
+		err = fmt.Errorf("%s is not a valid token type", in)
+	}
+
+	return
+}
+
 func Login(username, password string, tokenType AccessTokenType) (AccessToken, error) {
+	return authRequest("login", username, password, tokenType)
+}
+
+func Register(username, password string, tokenType AccessTokenType) (AccessToken, error) {
+	return authRequest("register", username, password, tokenType)
+}
+
+func authRequest(endpoint, username, password string, tokenType AccessTokenType) (AccessToken, error) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(Credentials{
 		Username: username,
@@ -38,7 +63,7 @@ func Login(username, password string, tokenType AccessTokenType) (AccessToken, e
 		return AccessToken{}, err
 	}
 
-	req, err := newRequest(http.MethodPost, "/auth/login", &buf)
+	req, err := newRequest(http.MethodPost, fmt.Sprintf("/auth/%s", endpoint), &buf)
 	if err != nil {
 		return AccessToken{}, err
 	}
@@ -51,8 +76,7 @@ func Login(username, password string, tokenType AccessTokenType) (AccessToken, e
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("login rejected: %s", res.Status)
-		return AccessToken{}, err
+		return AccessToken{}, catchResponseError(res, fmt.Sprintf("%s failed", endpoint))
 	}
 
 	var result AccessToken

@@ -18,7 +18,7 @@ func GetMod(mod string) (result Mod, err error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("get rejected: %s", res.Status)
+		err = GenericError{res.StatusCode, fmt.Sprintf("get mod '%s' rejected", mod)}
 		return
 	}
 

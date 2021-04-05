@@ -19,7 +19,7 @@ func UnpublishModVersion(mod string, version *semver.Version) error {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("unpublish rejected: %s", res.Status)
+		return GenericError{res.StatusCode, fmt.Sprintf("unpublish %s@%s rejected", mod, version)}
 	}
 
 	return nil

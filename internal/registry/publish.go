@@ -59,7 +59,7 @@ func PublishMod(metadata common.ModMetadata, tag string, reader io.Reader) error
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusCreated {
-		return fmt.Errorf("publish rejected: %s", res.Status)
+		return GenericError{res.StatusCode, "publish rejected"}
 	}
 
 	return nil
