@@ -9,7 +9,6 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"strings"
-	"syscall"
 )
 
 type loginCmd struct {
@@ -38,7 +37,7 @@ func newLoginCmd() *loginCmd {
 			}
 
 			fmt.Print("Password: ")
-			bytePassword, err := terminal.ReadPassword(syscall.Stdin)
+			bytePassword, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 			if err != nil {
 				return err
 			}
