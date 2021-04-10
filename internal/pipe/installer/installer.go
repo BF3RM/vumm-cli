@@ -50,8 +50,7 @@ func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, ver
 		if err != nil {
 			return err
 		}
-		defer archiveReader.Close()
-		log.WithField("size", common.ByteCountToHuman(size)).Debugf("streaming archive file")
+		log.WithField("size", common.ByteCountToHuman(size)).Debugf("downloaded archive file")
 
 		modFolder := filepath.Join(ctx.WorkingDirectory, "Mods", version.Name)
 
