@@ -27,8 +27,8 @@ var defaultIgnoresLines = []string{
 	"*.iml",
 
 	// VU (ui folders, these should be compiled to a ui.vuic anyways)
-	"[Uu][Ii]/",
-	"[Ww]eb[Uu][Ii]/",
+	"^[Uu][Ii]/",
+	"^[Ww]eb[Uu][Ii]/",
 	".vummignore", // yea lets also remove ourselves
 }
 
