@@ -101,31 +101,20 @@ func (m ModList) isModEnabled(mod string) (bool, int) {
 func (m *ModList) Save() error {
 	log.WithField("file", "ModList.txt").Debugf("saving ModList.txt")
 
-	tmpFilePath := filepath.Join(m.dir, "ModList.txt.new")
+	file, err := os.OpenFile(filepath.Join(m.dir, "ModList.txt"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0x644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
 
-	// anonymous func to make sure file is always closed no matter what before we rename it
-	err := func() error {
-		file, err := os.Create(tmpFilePath)
-		if err != nil {
+	writer := bufio.NewWriter(file)
+
+	for _, line := range m.lines {
+		if _, err = writer.WriteString(fmt.Sprintf("%s\n", line)); err != nil {
 			return err
 		}
-		defer file.Close()
-
-		writer := bufio.NewWriter(file)
-
-		for _, line := range m.lines {
-			if _, err = writer.WriteString(fmt.Sprintf("%s\n", line)); err != nil {
-				return err
-			}
-		}
-		if err = writer.Flush(); err != nil {
-			return err
-		}
-
-		return nil
-	}()
-
-	if err = os.Rename(tmpFilePath, filepath.Join(m.dir, "ModList.txt")); err != nil {
+	}
+	if err = writer.Flush(); err != nil {
 		return err
 	}
 
