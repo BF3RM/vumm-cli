@@ -69,7 +69,7 @@ func newRootCmd() *rootCmd {
 	root.cmd.AddCommand(newPackCmd().cmd)
 	root.cmd.AddCommand(newRegisterCmd().cmd)
 	root.cmd.AddCommand(newLoginCmd().cmd)
-	root.cmd.AddCommand(uninstallCmd)
+	//root.cmd.AddCommand(uninstallCmd)
 
 	return root
 }
