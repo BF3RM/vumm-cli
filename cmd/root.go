@@ -72,8 +72,9 @@ func newRootCmd() *rootCmd {
 	root.cmd.AddCommand(newRegisterCmd().cmd)
 
 	root.cmd.AddCommand(newLoginCmd().cmd)
-	root.cmd.AddCommand(newGrantCmd().cmd)
 	root.cmd.AddCommand(newRegisterCmd().cmd)
+	root.cmd.AddCommand(newGrantCmd().cmd)
+	root.cmd.AddCommand(newRevokeCmd().cmd)
 
 	return root
 }
