@@ -64,12 +64,16 @@ func newRootCmd() *rootCmd {
 	cobra.CheckErr(viper.BindPFlag("token", root.cmd.PersistentFlags().Lookup("token")))
 
 	root.cmd.AddCommand(newInstallCmd().cmd)
+	//root.cmd.AddCommand(uninstallCmd)
+
 	root.cmd.AddCommand(newPublishCmd().cmd)
 	root.cmd.AddCommand(newUnpublishCmd().cmd)
 	root.cmd.AddCommand(newPackCmd().cmd)
 	root.cmd.AddCommand(newRegisterCmd().cmd)
+
 	root.cmd.AddCommand(newLoginCmd().cmd)
-	//root.cmd.AddCommand(uninstallCmd)
+	root.cmd.AddCommand(newGrantCmd().cmd)
+	root.cmd.AddCommand(newRegisterCmd().cmd)
 
 	return root
 }
