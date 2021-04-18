@@ -1,6 +1,7 @@
 package updater
 
 import (
+	"github.com/creativeprojects/go-selfupdate"
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/config"
 	"os"
@@ -9,6 +10,14 @@ import (
 )
 
 const updateInterval = time.Hour * 24 * 7 // 1 week
+
+func PeriodicCheckForUpdates() (*selfupdate.Release, bool, error) {
+	if !shouldCheck() {
+		return nil, false, nil
+	}
+
+	return CheckForUpdates()
+}
 
 func shouldCheck() bool {
 	// Don't check for updates on development versions

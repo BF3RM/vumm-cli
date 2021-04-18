@@ -11,17 +11,18 @@ import (
 )
 
 var latestVersion *selfupdate.Release
+var updater *selfupdate.Updater
 
-func PeriodicCheckForUpdates() (*selfupdate.Release, bool, error) {
-	if !shouldCheck() {
-		return nil, false, nil
+func init() {
+	var err error
+	updater, err = selfupdate.NewUpdater(selfupdate.Config{Validator: &selfupdate.ChecksumValidator{UniqueFilename: "checksums.txt"}})
+	if err != nil {
+		panic(err)
 	}
-
-	return CheckForUpdates()
 }
 
 func CheckForUpdates() (*selfupdate.Release, bool, error) {
-	latest, found, err := selfupdate.DetectLatest("BF3RM/vumm-cli")
+	latest, found, err := updater.DetectLatest("BF3RM/vumm-cli")
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to fetch latest version: %v", err)
 	}
@@ -58,7 +59,7 @@ func SelfUpdate() (bool, error) {
 	if err != nil {
 		return false, errors.New("could not locate executable path")
 	}
-	if err := selfupdate.DefaultUpdater().UpdateTo(latestVersion, exe); err != nil {
+	if err := updater.UpdateTo(latestVersion, exe); err != nil {
 		return false, fmt.Errorf("error occurred while updating binary: %v", err)
 	}
 	log.Printf("Successfully updated to version %s", latestVersion.Version())
