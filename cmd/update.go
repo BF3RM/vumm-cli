@@ -18,17 +18,17 @@ func newUpdateCmd() *updateCmd {
 		Long:  "Check for updates and try to self update if a newer version is available",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			log.Infof("checking for updates")
-			updateAvailable, err := updater.CheckForUpdates()
+			release, updateAvailable, err := updater.CheckForUpdates()
 			if err != nil {
 				return err
 			}
 
 			if !updateAvailable {
-				log.Info("latest version already installed")
+				log.Info("already up to date")
 				return nil
 			}
 
-			log.Info("new version available, installing...")
+			log.Infof("new version available, installing version %s", release.Version())
 			if _, err := updater.SelfUpdate(); err != nil {
 				return err
 			}

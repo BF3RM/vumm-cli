@@ -12,31 +12,39 @@ import (
 
 var latestVersion *selfupdate.Release
 
-func CheckForUpdates() (bool, error) {
+func PeriodicCheckForUpdates() (*selfupdate.Release, bool, error) {
+	if !shouldCheck() {
+		return nil, false, nil
+	}
+
+	return CheckForUpdates()
+}
+
+func CheckForUpdates() (*selfupdate.Release, bool, error) {
 	latest, found, err := selfupdate.DetectLatest("BF3RM/vumm-cli")
 	if err != nil {
-		return false, fmt.Errorf("failed to fetch latest version: %v", err)
+		return nil, false, fmt.Errorf("failed to fetch latest version: %v", err)
 	}
 
 	if !found {
-		return false, fmt.Errorf("failed to find latest version for %s", runtime.GOOS)
+		return nil, false, fmt.Errorf("failed to find latest version for %s", runtime.GOOS)
 	}
 
 	latestVersion = latest
-	return IsUpdateAvailable(), nil
+	return latest, IsUpdateAvailable(), nil
 }
 
 func IsUpdateAvailable() bool {
-	if latestVersion == nil {
+	if latestVersion == nil || !common.IsRelease() {
 		return false
 	}
 
-	return latestVersion.LessThan(common.GetVersion())
+	return latestVersion.GreaterThan(common.GetVersion())
 }
 
 func SelfUpdate() (bool, error) {
 	if latestVersion == nil {
-		_, err := CheckForUpdates()
+		_, _, err := CheckForUpdates()
 		if err != nil {
 			return false, err
 		}

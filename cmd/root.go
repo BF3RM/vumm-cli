@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/registry"
+	"github.com/vumm/cli/internal/updater"
 	"os"
 )
 
@@ -52,6 +53,12 @@ func newRootCmd() *rootCmd {
 
 			if root.verbose {
 				log.SetLevel(log.DebugLevel)
+			}
+		},
+		PersistentPostRun: func(cmd *cobra.Command, args []string) {
+			release, available, _ := updater.PeriodicCheckForUpdates()
+			if available {
+				log.WithField("version", release.Version()).Info("update available, run vumm update to install")
 			}
 		},
 	}

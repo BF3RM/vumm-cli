@@ -19,3 +19,7 @@ func GetFullVersion() string {
 func GetBuildDate() string {
 	return date
 }
+
+func IsRelease() bool {
+	return version != "dev"
+}
