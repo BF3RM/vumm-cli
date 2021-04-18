@@ -25,6 +25,7 @@ func newUpdateCmd() *updateCmd {
 
 			if !updateAvailable {
 				log.Info("latest version already installed")
+				return nil
 			}
 
 			log.Info("new version available, installing...")
