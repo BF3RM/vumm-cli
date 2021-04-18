@@ -9,6 +9,10 @@ var (
 )
 
 func GetVersion() string {
+	return version
+}
+
+func GetFullVersion() string {
 	return fmt.Sprintf("%s-%s", version, commit)
 }
 

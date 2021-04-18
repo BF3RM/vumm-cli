@@ -38,7 +38,7 @@ func newRootCmd() *rootCmd {
 		Long:          "Install and manage your favourite Venice Unleashed mods.",
 		SilenceErrors: true,
 		SilenceUsage:  true,
-		Version:       common.GetVersion(),
+		Version:       common.GetFullVersion(),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			registryUrl := viper.GetString("registry")
 			if registryUrl != "" {
