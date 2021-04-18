@@ -15,12 +15,7 @@ builds:
     ldflags:
       - -s -w -X github.com/vumm/cli/internal/common.version={{.Version}} -X github.com/vumm/cli/internal/common.commit={{.ShortCommit}} -X github.com/vumm/cli/internal/common.date={{ .CommitDate }}
 archives:
-  - name_template: '{{ .ProjectName }}-{{ .Version }}-{{ .Os }}{{ .Arch }}'
-    replacements:
-      darwin: macos
-      windows: win
-      386: 32
-      amd64: 64
+  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}'
     format_overrides:
       - goos: windows
         format: zip
