@@ -8,11 +8,11 @@ import (
 	"time"
 )
 
-type AccessTokenType uint8
+type AccessTokenType string
 
 const (
-	AccessTokenTypeReadonly AccessTokenType = iota
-	AccessTokenTypePublish
+	AccessTokenTypeReadonly AccessTokenType = "Readonly"
+	AccessTokenTypePublish                  = "Publish"
 )
 
 type Credentials struct {
