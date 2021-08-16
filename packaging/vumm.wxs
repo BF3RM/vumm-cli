@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?define Program_Files="ProgramFiles64Folder"?>
+
+<!--<?if $(var.Platform)="x86"?>-->
+<!--  <?define Program_Files="ProgramFilesFolder"?>-->
+<!--<?else?>-->
+<!--  <?define Program_Files="ProgramFiles64Folder"?>-->
+<!--<?endif?>-->
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <?ifndef var.Version?>
+    <?error Version must be defined. Ex. wixl -D Version=0.0.1?>
+  <?endif?>
+
+  <?ifndef var.Path?>
+    <?error Path must be defined. Ex. wixl -D Path=dist/vumm_windows_amd64/vumm.exe?>
+  <?endif?>
+
+  <Product Id="*"
+           Name="Venice Unleashed Mod Manager"
+           Language="1033"
+           Manufacturer="BF3: Reality Mod Team"
+           Version="$(var.Version)"
+           UpgradeCode="59ba0cfa-25ad-4ba3-a97e-6d79a85fca17">
+
+    <Package Id="*"
+             Keywords="Installer"
+             Description="Venice Unleashed Mod Manager Installer"
+             Manufacturer="BF3: Reality Mod Team"
+             InstallerVersion="310"
+             Compressed="yes"
+             InstallScope="perMachine"/>
+
+    <Media Id="1" Cabinet="vumm.cab" EmbedCab="yes"/>
+
+    <Upgrade Id="59ba0cfa-25ad-4ba3-a97e-6d79a85fca17">
+      <UpgradeVersion Minimum="$(var.Version)" OnlyDetect="yes" Property="NEWERVERSIONDETECTED"/>
+      <UpgradeVersion Minimum="0.0.0" Maximum="$(var.Version)" IncludeMinimum="yes" IncludeMaximum="no"
+                      Property="OLDERVERSIONBEINGUPGRADED"/>
+    </Upgrade>
+    <Condition Message="A newer version of Venice Unleashed Mod Manager is already installed.">NOT NEWERVERSIONDETECTED</Condition>
+
+    <!-- There's currently no use case for control-panel based repair or modify -->
+    <Property Id="ARPNOREPAIR" Value="1"/>
+    <Property Id="ARPNOMODIFY" Value="1"/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.Program_Files)">
+        <Directory Id="INSTALLDIR" Name="vumm">
+          <Component Id="ProductFiles" Guid="*">
+            <!-- KeyPath="yes" - means this will be looked at to see if it is already installed -->
+            <File Id="ExecutableFile" Name="vumm.exe" KeyPath="yes" Source="$(var.Path)"/>
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="Complete" Level="1">
+      <ComponentRef Id="ProductFiles"/>
+    </Feature>
+
+    <!-- Add vumm to the default PATH once installation succeeds.
+         Replace with <Component><Environment> after https://gitlab.gnome.org/GNOME/msitools/-/merge_requests/42 -->
+    <Property Id="setx" Value="setx.exe"/>
+    <CustomAction Id="ChangePath" ExeCommand="PATH &quot;%PATH%;[INSTALLDIR]&quot;" Property="setx"
+                  Execute="deferred"/>
+    <InstallExecuteSequence>
+      <RemoveExistingProducts Before="InstallInitialize"/>
+      <!-- Add PATH remove after after https://gitlab.gnome.org/GNOME/msitools/-/merge_requests/42 -->
+      <Custom Action="ChangePath" After="InstallServices">NOT Installed</Custom>
+    </InstallExecuteSequence>
+  </Product>
+</Wix>
