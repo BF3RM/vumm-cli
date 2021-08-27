@@ -11,6 +11,7 @@ import (
 var defaultIgnoresLines = []string{
 	// Git
 	".git",
+	".gitmodules",
 	".gitignore",
 	".github/",
 
