@@ -9,12 +9,14 @@ import (
 
 type grantPermissionDto struct {
 	Username   string `json:"username"`
-	Permission string `json:"permission"`
+	Permission string `json:"permission,omitempty"`
+	Tag        string `json:"tag"`
 }
 
-func GrantModUserPermissions(mod, username, permission string) error {
+func GrantModUserPermissions(mod, tag, username, permission string) error {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(grantPermissionDto{
+		Tag:        tag,
 		Username:   username,
 		Permission: permission,
 	})
@@ -41,9 +43,10 @@ func GrantModUserPermissions(mod, username, permission string) error {
 	return nil
 }
 
-func RevokeModUserPermissions(mod, username string) error {
+func RevokeModUserPermissions(mod, tag, username string) error {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(grantPermissionDto{
+		Tag:      tag,
 		Username: username,
 	})
 	if err != nil {

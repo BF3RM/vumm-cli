@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/vumm/cli/internal/registry"
+	"strings"
 )
 
 type grantCmd struct {
@@ -13,7 +14,7 @@ type grantCmd struct {
 func newGrantCmd() *grantCmd {
 	root := &grantCmd{}
 	root.cmd = &cobra.Command{
-		Use:   "grant <mod> <username> <readonly|publish>",
+		Use:   "grant <mod[@tag]> <username> <readonly|publish>",
 		Short: "Grant mod permissions to a user",
 		Long: `Give people mod permissions. Either grant someone with publish permissions
 or give someone access to a private mod by granting them the readonly permission`,
@@ -29,7 +30,8 @@ or give someone access to a private mod by granting them the readonly permission
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return registry.GrantModUserPermissions(args[0], args[1], args[2])
+			mod, tag := extractModNameAndTag(args[0])
+			return registry.GrantModUserPermissions(mod, tag, args[1], args[2])
 		},
 	}
 
@@ -43,14 +45,24 @@ type revokeCmd struct {
 func newRevokeCmd() *revokeCmd {
 	root := &revokeCmd{}
 	root.cmd = &cobra.Command{
-		Use:   "revoke <mod> <username>",
+		Use:   "revoke <mod[@tag]> <username>",
 		Short: "Revoke mod permissions of a user",
 		Long:  `Revoke all mod permissions of a user`,
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return registry.RevokeModUserPermissions(args[0], args[1])
+			mod, tag := extractModNameAndTag(args[0])
+			return registry.RevokeModUserPermissions(mod, tag, args[1])
 		},
 	}
 
 	return root
+}
+
+func extractModNameAndTag(mod string) (string, string) {
+	parts := strings.SplitN(mod, "@", 2)
+	if len(parts) > 1 {
+		return parts[0], parts[1]
+	}
+
+	return parts[0], ""
 }
