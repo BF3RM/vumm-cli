@@ -2,7 +2,6 @@ package registry
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/Masterminds/semver"
 	"io"
@@ -21,26 +20,6 @@ func FetchModVersionArchive(mod string, version *semver.Version) (io.Reader, int
 		return nil, 0, err
 	}
 	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		return nil, 0, GenericError{res.StatusCode, fmt.Sprintf("fetch %s@%s mod archive rejected", mod, version)}
-	}
-
-	var result modVersionArchiveUrlDto
-	err = json.NewDecoder(res.Body).Decode(&result)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to decode mod version archive url: %v", err)
-	}
-
-	req, err = http.NewRequest(http.MethodGet, result.URL, nil)
-	if err != nil {
-		return nil, 0, err
-	}
-	res, err = http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, 0, err
 	}
