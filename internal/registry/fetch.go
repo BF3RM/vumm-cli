@@ -9,10 +9,6 @@ import (
 	"net/http"
 )
 
-type modVersionArchiveUrlDto struct {
-	URL string `json:"url"`
-}
-
 func FetchModVersionArchive(mod string, version *semver.Version) (io.Reader, int64, error) {
 	fetchUrl := fmt.Sprintf("/mods/%s/%s/download", mod, version)
 	req, err := newRequest(http.MethodGet, fetchUrl, nil)
