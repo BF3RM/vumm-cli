@@ -2,47 +2,41 @@ package registry
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/vumm/cli/internal/common"
 	"io"
-	"mime/multipart"
+	"io/ioutil"
 	"net/http"
 )
 
+type publishModArchiveDto struct {
+	Data        string `json:"data"`
+	Length      int    `json:"length"`
+	ContentType string `json:"content_type"`
+}
+
+type publishModDto struct {
+	common.ModMetadata
+	Tag     string               `json:"tag"`
+	Archive publishModArchiveDto `json:"archive"`
+}
+
 func PublishMod(metadata common.ModMetadata, tag string, reader io.Reader) error {
+	archive, err := encodeArchive(reader)
+	if err != nil {
+		return fmt.Errorf("failed to encode archive: %v", err)
+	}
+
 	var buf bytes.Buffer
-	w := multipart.NewWriter(&buf)
-
-	// Attributes
-	attributeWriter, err := w.CreateFormField("attributes")
-	if err != nil {
-		return err
+	if err = json.NewEncoder(&buf).Encode(publishModDto{
+		ModMetadata: metadata,
+		Tag:         tag,
+		Archive:     archive,
+	}); err != nil {
+		return fmt.Errorf("failed to encode publish metadata: %v", err)
 	}
-	if err = json.NewEncoder(attributeWriter).Encode(metadata); err != nil {
-		return err
-	}
-
-	// Archive
-	archiveWriter, err := w.CreateFormFile("archive", "archive.tar.gz")
-	if err != nil {
-		return err
-	}
-	if _, err = io.Copy(archiveWriter, reader); err != nil {
-		return err
-	}
-
-	// Tag
-	if tag != "" {
-		tagWriter, err := w.CreateFormField("tag")
-		if err != nil {
-			return err
-		}
-		if _, err = tagWriter.Write([]byte(tag)); err != nil {
-			return err
-		}
-	}
-	w.Close()
 
 	publishUrl := fmt.Sprintf("/mods/%s/%s", metadata.Name, metadata.Version)
 
@@ -51,7 +45,7 @@ func PublishMod(metadata common.ModMetadata, tag string, reader io.Reader) error
 		return err
 	}
 
-	req.Header.Set("Content-Type", w.FormDataContentType())
+	req.Header.Set("Content-Type", "application/json")
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -63,4 +57,21 @@ func PublishMod(metadata common.ModMetadata, tag string, reader io.Reader) error
 	}
 
 	return nil
+}
+
+func encodeArchive(reader io.Reader) (publishModArchiveDto, error) {
+	buffer, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return publishModArchiveDto{}, err
+	}
+
+	length := len(buffer)
+	contentType := http.DetectContentType(buffer)
+	data := base64.StdEncoding.EncodeToString(buffer)
+
+	return publishModArchiveDto{
+		Data:        data,
+		Length:      length,
+		ContentType: contentType,
+	}, nil
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func FetchModVersionArchive(mod string, version *semver.Version) (io.Reader, int64, error) {
-	fetchUrl := fmt.Sprintf("/mods/%s/%s/archive", mod, version)
+	fetchUrl := fmt.Sprintf("/mods/%s/%s/download", mod, version)
 	req, err := newRequest(http.MethodGet, fetchUrl, nil)
 	if err != nil {
 		return nil, 0, err
