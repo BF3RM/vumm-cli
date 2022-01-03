@@ -114,4 +114,7 @@ modules.xml
 # Builds
 dist/
 
+# Wixtoolset output
+*.wixobj
+
 # End of https://www.toptal.com/developers/gitignore/api/jetbrains+all,godist/
