@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?if $(sys.BUILDARCH)=x64?>
-  <?define PlatformProgramFilesFolder = "ProgramFiles64Folder" ?>
-<?else?>
-  <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
-<?endif?>
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 
   <?ifndef var.Version?>
@@ -29,7 +23,8 @@
              Manufacturer="BF3: Reality Mod Team"
              InstallerVersion="310"
              Compressed="yes"
-             InstallScope="perMachine"/>
+             InstallPrivileges="limited"
+             InstallScope="perUser"/>
 
     <Media Id="1" Cabinet="vumm.cab" EmbedCab="yes"/>
 
@@ -45,8 +40,18 @@
     <Property Id="ARPNOMODIFY" Value="1"/>
 
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="$(var.PlatformProgramFilesFolder)">
-        <Directory Id="INSTALLDIR" Name="vumm"/>
+      <Directory Id="LocalAppDataFolder" Name="AppData">
+        <Directory Id="INSTALLDIR" Name="VeniceUnleashedModManager">
+          <Component Id="ProductFiles" Guid="724f71ba-124e-4a80-93bf-4683d385af95">
+            <RegistryValue Root="HKCU" Key="Software\RealityModTeam\VeniceUnleashedModManager"
+                           Name="InstallFolder"
+                           Value="[INSTALLDIR]"
+                           Type="string"
+                           KeyPath="yes"/>
+            <File Id="ExecutableFile" Name="vumm.exe" Source="$(var.Path)"/>
+            <RemoveFolder Id="RemoveInstallDir" Directory="INSTALLDIR" On="uninstall" />
+          </Component>
+        </Directory>
       </Directory>
 
       <Component Id="ProductEnv" Guid="11d9239b-615a-4768-b0a0-49dce9d7f8e8">
@@ -56,13 +61,9 @@
                      Permanent="no"
                      Part="last"
                      Action="set"
-                     System="yes"/>
+                     System="no"/>
       </Component>
     </Directory>
-
-    <Component Id="ProductFiles" Guid="*" Directory="INSTALLDIR">
-      <File Id="ExecutableFile" Name="vumm.exe" KeyPath="yes" Source="$(var.Path)"/>
-    </Component>
 
     <Feature Id="Complete" Level="1">
       <ComponentRef Id="ProductFiles"/>
@@ -70,8 +71,8 @@
     </Feature>
 
     <InstallExecuteSequence>
-      <WriteEnvironmentStrings/>
       <RemoveExistingProducts Before="InstallInitialize"/>
+      <WriteEnvironmentStrings/>
     </InstallExecuteSequence>
   </Product>
 </Wix>
