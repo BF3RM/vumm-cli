@@ -37,6 +37,7 @@ jobs:
             dist/vumm_windows_amd64
 
   msi:
+    needs: goreleaser
     runs-on: windows-latest
     steps:
       - name: Checkout
