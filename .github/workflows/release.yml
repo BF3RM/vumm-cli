@@ -59,10 +59,9 @@ jobs:
         shell: bash
         run: |  # manually until https://github.com/goreleaser/goreleaser/issues/1295
           tag="${GITHUB_REF#refs/tags/}"
-          version=${tag#v}
-          VERSION=${version} make msi
-          msi_86=dist/vumm_${version}_windows_386.msi
-          msi_64=dist/vumm_${version}_windows_amd64.msi
+          VERSION=${tag#v} make msi
+          msi_86=dist/vumm_windows_386.msi
+          msi_64=dist/vumm_windows_amd64.msi
           mv dist/vumm_windows_386/vumm.msi ${msi_86}
           mv dist/vumm_windows_amd64/vumm.msi ${msi_64}
           gh release upload "${tag}" "${msi_86}" "${msi_64}"
