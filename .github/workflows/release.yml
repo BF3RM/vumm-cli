@@ -54,6 +54,15 @@ jobs:
         shell: bash
         run: echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" >> $GITHUB_PATH
 
+      - name: Unzip exe's
+        shell: bash
+        run: |
+          cd dist
+          cd vumm_windows_386
+          unzip -o *.zip && rm -v *.zip
+          cd ../vumm_windows_amd64
+          unzip -o *.zip && rm -v *.zip
+
       - name: Build and publish msi installers
         shell: bash
         run: |  # manually until https://github.com/goreleaser/goreleaser/issues/1295
