@@ -25,13 +25,15 @@ Check the matrix below to download the version you need. For windows we provide 
 
 | OS      | Architecture | Type      | Download |
 |---------|--------------|-----------|----------|
-| Windows | 64bit        | Installer | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_amd64.msi) |
-| Windows | 64bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_amd64.zip) |
-| Windows | 32bit        | Installer | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_386.msi) 
-| Windows | 32bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_386.zip) |
-| Linux   | 64bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_linux_amd64.tar.gz) |
-| Linux   | 32bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_linux_386.tar.gz) |
-| Darwin  | 64bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_darwin_amd64.tar.gz) |
+| Windows | 64bit        | Installer | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_windows_amd64.msi) |
+| Windows | 64bit        | Archive   | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_windows_amd64.zip) |
+| Windows | 32bit        | Installer | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_windows_386.msi) 
+| Windows | 32bit        | Archive   | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_windows_386.zip) |
+| Linux   | 64bit        | Archive   | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_linux_amd64.tar.gz) |
+| Linux   | 32bit        | Archive   | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_linux_386.tar.gz) |
+| Darwin  | 64bit        | Archive   | [Latest](https://github.com/BF3RM/vumm-cli/releases/latest/download/vumm_darwin_amd64.tar.gz) |
+
+You can find other releases [here](https://github.com/BF3RM/vumm-cli/releases).
 
 ## Usage
 VUMM has two purposes, to simplify the distribution of mods and to simplify the installation of mods. Below you can find different type of commands that you can use.
