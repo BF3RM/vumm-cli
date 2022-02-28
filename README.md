@@ -21,8 +21,17 @@ It also allows developers to easily distribute new versions and don't have to wo
 Furthermore the tool automatically checks compatibility between your installed mods and will warn you when something is off.
 
 ## Installation
-Download the latest version of vumm  [here](https://github.com/BF3RM/vumm-cli/releases/latest).
-Extract the executable file in your `Battlefield 3/Server/Admin` folder.
+Check the matrix below to download the version you need. For windows we provide a installer. For Linux and MacOS(Darwin) you will have to manually extract the archives. You also need to add VUMM to your `PATH` when not using the installer.
+
+| OS      | Architecture | Type      | Download |
+|---------|--------------|-----------|----------|
+| Windows | 64bit        | Installer | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_amd64.msi) |
+| Windows | 64bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_amd64.zip) |
+| Windows | 32bit        | Installer | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_386.msi) 
+| Windows | 32bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_windows_386.zip) |
+| Linux   | 64bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_linux_amd64.tar.gz) |
+| Linux   | 32bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_linux_386.tar.gz) |
+| Darwin  | 64bit        | Archive   | [Latest](/BF3RM/vumm-cli/releases/latest/download/vumm_darwin_amd64.tar.gz) |
 
 ## Usage
 VUMM has two purposes, to simplify the distribution of mods and to simplify the installation of mods. Below you can find different type of commands that you can use.
