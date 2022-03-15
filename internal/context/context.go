@@ -3,8 +3,8 @@ package context
 import (
 	"context"
 	"github.com/vumm/cli/internal/project"
-	"github.com/vumm/cli/internal/registry"
 	"github.com/vumm/cli/internal/workspace"
+	"github.com/vumm/cli/pkg/api"
 	"reflect"
 	"time"
 )
@@ -15,7 +15,8 @@ type Context struct {
 	Project          *project.Project
 	WorkingDirectory string
 	ModList          *workspace.ModList
-	Dependencies     map[string]registry.ModVersion
+	Dependencies     map[string]api.ModVersion
+	Client           *api.Client
 
 	values map[interface{}]interface{}
 }

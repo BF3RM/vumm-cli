@@ -5,7 +5,7 @@ import (
 	"github.com/apex/log"
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/context"
-	"github.com/vumm/cli/internal/registry"
+	"github.com/vumm/cli/pkg/api"
 )
 
 // Pipe is a pipe that tries resolving the given mod and its dependencies
@@ -25,7 +25,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	if ctx.Dependencies != nil {
 		return fmt.Errorf("dependencies where already resolved")
 	}
-	ctx.Dependencies = map[string]registry.ModVersion{}
+	ctx.Dependencies = map[string]api.ModVersion{}
 
 	// List with unresolved mod dependencies
 	unresolved := []modDependency{resolveModDependencyFromString(p.mod)}
@@ -37,7 +37,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 		unresolved = unresolved[1:]
 
 		log.WithField("mod", dep.Name).Info("fetching metadata")
-		version, err := p.resolveModVersion(dep)
+		version, err := p.resolveModVersion(ctx, dep)
 		if err != nil {
 			return err
 		}
@@ -71,10 +71,10 @@ func (p Pipe) Run(ctx *context.Context) error {
 	return nil
 }
 
-func (p Pipe) resolveModVersion(dep modDependency) (registry.ModVersion, error) {
-	mod, err := registry.GetMod(dep.Name)
+func (p Pipe) resolveModVersion(ctx *context.Context, dep modDependency) (api.ModVersion, error) {
+	mod, err := ctx.Client.GetMod(dep.Name)
 	if err != nil {
-		return registry.ModVersion{}, err
+		return api.ModVersion{}, err
 	}
 	if dep.Tag != "" {
 		return mod.GetVersionByTag(dep.Tag)

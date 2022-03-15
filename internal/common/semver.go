@@ -2,7 +2,7 @@ package common
 
 import (
 	"encoding/json"
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 )
 
 type SemverConstraints struct {
