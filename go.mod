@@ -8,6 +8,6 @@ require (
 	github.com/caarlos0/ctrlc v1.0.0
 	github.com/creativeprojects/go-selfupdate v0.6.1
 	github.com/spf13/cobra v1.3.0
-	github.com/spf13/viper v1.10.1
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
+	github.com/spf13/viper v1.11.0
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 )
