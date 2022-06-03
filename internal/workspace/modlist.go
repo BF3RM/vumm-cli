@@ -102,7 +102,7 @@ func (m ModList) isModEnabled(mod string) (bool, int) {
 func (m *ModList) Save() error {
 	log.WithField("file", "ModList.txt").Debugf("saving ModList.txt")
 
-	file, err := os.OpenFile(filepath.Join(m.dir, "ModList.txt"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0x666)
+	file, err := os.OpenFile(filepath.Join(m.dir, "ModList.txt"), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}
