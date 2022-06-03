@@ -5,7 +5,6 @@ import (
 	"github.com/Masterminds/semver"
 	"github.com/apex/log"
 	"github.com/spf13/cobra"
-	"github.com/vumm/cli/internal/registry"
 	"strings"
 	"time"
 )
@@ -36,7 +35,7 @@ func newUnpublishCmd() *unpublishCmd {
 			start := time.Now()
 			log.Info("unpublishing...")
 
-			if err = registry.UnpublishModVersion(mod, version); err != nil {
+			if _, err = client.Mods.UnpublishModVersion(cmd.Context(), mod, version); err != nil {
 				return fmt.Errorf("unpublish unsuccessful after %0.2fs: %v", time.Since(start).Seconds(), err)
 			}
 

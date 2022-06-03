@@ -3,8 +3,8 @@ package context
 import (
 	"context"
 	"github.com/vumm/cli/internal/project"
-	"github.com/vumm/cli/internal/registry"
 	"github.com/vumm/cli/internal/workspace"
+	"github.com/vumm/cli/pkg/api"
 	"reflect"
 	"time"
 )
@@ -15,16 +15,18 @@ type Context struct {
 	Project          *project.Project
 	WorkingDirectory string
 	ModList          *workspace.ModList
-	Dependencies     map[string]registry.ModVersion
+	Dependencies     map[string]api.ModVersion
+	Client           *api.Client
 
 	values map[interface{}]interface{}
 }
 
-func NewWithTimeout(duration time.Duration) (*Context, context.CancelFunc) {
+func NewWithTimeout(client *api.Client, duration time.Duration) (*Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 
 	return &Context{
 		Context: ctx,
+		Client:  client,
 		values:  map[interface{}]interface{}{},
 	}, cancel
 }

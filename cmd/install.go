@@ -34,7 +34,7 @@ func newInstallCmd() *installCmd {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			ctx, cancel := context.NewWithTimeout(root.timeout)
+			ctx, cancel := context.NewWithTimeout(client, root.timeout)
 			defer cancel()
 
 			start := time.Now()

@@ -2,7 +2,7 @@ package common
 
 import "fmt"
 
-func ByteCountToHuman(b int64) string {
+func ByteCountToHuman(b int) string {
 	const unit = 1000
 	if b < unit {
 		return fmt.Sprintf("%d B", b)

@@ -28,7 +28,7 @@ func newPackCmd() *packCmd {
 			log.Info("packing...")
 			start := time.Now()
 
-			ctx, cancel := context.NewWithTimeout(root.timeout)
+			ctx, cancel := context.NewWithTimeout(client, root.timeout)
 			defer cancel()
 
 			err := ctrlc.Default.Run(ctx, func() error {

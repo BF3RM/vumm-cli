@@ -6,8 +6,8 @@ import (
 	"github.com/vumm/cli/internal/common"
 	"github.com/vumm/cli/internal/context"
 	"github.com/vumm/cli/internal/middleware"
-	"github.com/vumm/cli/internal/registry"
 	"github.com/vumm/cli/internal/workspace"
+	"github.com/vumm/cli/pkg/api"
 	"github.com/vumm/cli/pkg/tar"
 	"os"
 	"path/filepath"
@@ -42,15 +42,16 @@ func (p Pipe) Run(ctx *context.Context) error {
 	return p.updateModList(ctx)
 }
 
-func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, version registry.ModVersion) error {
+func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, version api.ModVersion) error {
 	return middleware.Logging(fmt.Sprintf("installing %s@%s", version.Name, version.Version), func(ctx *context.Context) error {
 		log.Info("fetching archive")
 
-		archiveReader, size, err := registry.FetchModVersionArchive(version.Name, version.Version)
+		archiveBuf, _, err := ctx.Client.Mods.DownloadModArchive(ctx, version.Name, version.Version)
+
 		if err != nil {
 			return err
 		}
-		log.WithField("size", common.ByteCountToHuman(size)).Debugf("downloaded archive file")
+		log.WithField("size", common.ByteCountToHuman(archiveBuf.Len())).Debugf("downloaded archive file")
 
 		modFolder := filepath.Join(ctx.WorkingDirectory, "Mods", version.Name)
 
@@ -69,7 +70,7 @@ func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, ver
 
 		start := time.Now()
 		log.Infof("extracting archive")
-		err = packager.Decompress(archiveReader, modFolder)
+		err = packager.Decompress(archiveBuf, modFolder)
 		if err != nil {
 			return err
 		}

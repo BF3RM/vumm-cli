@@ -1,9 +1,13 @@
-package registry
+package api
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
-	"github.com/Masterminds/semver"
+	"fmt"
+	"github.com/Masterminds/semver/v3"
 	"github.com/vumm/cli/internal/common"
+	"net/http"
 	"sort"
 )
 
@@ -85,4 +89,39 @@ func (m *Mod) GetLatestVersionByConstraints(constraints *common.SemverConstraint
 	}
 
 	return ModVersion{}, ErrModVersionNotFound
+}
+
+type ModsService commonService
+
+// GetMod fetches a mod from the registry
+func (s ModsService) GetMod(ctx context.Context, modName string) (*Mod, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("mods/%s", modName), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	mod := new(Mod)
+	res, err := s.client.Do(ctx, req, &mod)
+
+	if err != nil {
+		return nil, res, err
+	}
+
+	return mod, res, nil
+}
+
+// DownloadModArchive fetches a mods archive from the registry
+func (s ModsService) DownloadModArchive(ctx context.Context, modName string, modVersion *semver.Version) (*bytes.Buffer, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("mods/%s/%s/download", modName, modVersion), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	buf := new(bytes.Buffer)
+	res, err := s.client.Do(ctx, req, buf)
+	if err != nil {
+		return nil, res, err
+	}
+
+	return buf, res, nil
 }

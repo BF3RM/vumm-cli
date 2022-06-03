@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/vumm/cli/internal/context"
-	"github.com/vumm/cli/internal/registry"
 )
 
 type Pipe struct {
@@ -23,7 +22,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 	}
 
 	log.Info("publishing to registry")
-	err := registry.PublishMod(ctx.Project.Metadata, p.Tag, &archiveBuf)
+	_, err := ctx.Client.Mods.PublishMod(ctx, ctx.Project.Metadata, p.Tag, &archiveBuf)
 	if err != nil {
 		return err
 	}

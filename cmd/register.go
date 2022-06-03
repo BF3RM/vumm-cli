@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/vumm/cli/internal/registry"
+	"github.com/vumm/cli/pkg/api"
 	"golang.org/x/crypto/ssh/terminal"
 	"os"
 	"strings"
@@ -23,7 +23,7 @@ func newRegisterCmd() *registerCmd {
 		Short: "Register with username and password",
 		Long:  "Register with a username and password so you can publish your mod or access private mods",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			tokenType, err := registry.ParseTokenType(root.tokenType)
+			tokenType, err := api.PermissionTypeFromString(root.tokenType)
 			if err != nil {
 				return err
 			}
@@ -43,8 +43,8 @@ func newRegisterCmd() *registerCmd {
 			}
 			fmt.Println()
 
-			fmt.Println("Registering...")
-			token, err := registry.Register(strings.TrimSpace(username), strings.TrimSpace(string(bytePassword)), tokenType)
+			fmt.Println("registering...")
+			token, _, err := client.Auth.Register(cmd.Context(), strings.TrimSpace(username), strings.TrimSpace(string(bytePassword)), tokenType)
 			if err != nil {
 				return err
 			}
@@ -57,6 +57,8 @@ func newRegisterCmd() *registerCmd {
 					return err
 				}
 			}
+
+			fmt.Println("registered successfully, you are automatically logged in")
 
 			return nil
 		},

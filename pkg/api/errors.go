@@ -1,27 +1,43 @@
-package registry
+package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 )
 
+var (
+	ErrModVersionNotFound = errors.New("mod version was not found")
+)
+
 type GenericError struct {
-	statusCode int
-	message    string
-}
-
-func (e GenericError) StatusCode() int {
-	return e.statusCode
-}
-
-func (e GenericError) Status() string {
-	return http.StatusText(e.statusCode)
+	Response *http.Response
+	Message  string              `json:"message"`
+	Errors   map[string][]string `json:"errors"`
 }
 
 func (e GenericError) Error() string {
-	return fmt.Sprintf("%s: %s", e.message, e.Status())
+	return fmt.Sprintf("%v %v: %d, %v %+v", e.Response.Request.Method, e.Response.Request.URL, e.Response.StatusCode, e.Message, e.Errors)
+}
+
+type UnauthorizedError GenericError
+
+func (e *UnauthorizedError) Error() string {
+	return (*GenericError)(e).Error()
+}
+
+type BadRequestError GenericError
+
+func (e *BadRequestError) Error() string {
+	return (*GenericError)(e).Error()
+}
+
+type ConflictError GenericError
+
+func (e *ConflictError) Error() string {
+	return (*GenericError)(e).Error()
 }
 
 type ValidationError struct {
@@ -70,24 +86,10 @@ func (e ValidationError) Error() string {
 	}
 
 	builder := strings.Builder{}
-	builder.WriteString(e.message)
+	builder.WriteString(e.Message)
 	for _, err := range e.GetValidationErrors() {
 		builder.WriteString(fmt.Sprintf("\n\t- %s", err))
 	}
 
 	return builder.String()
-}
-
-func catchResponseError(res *http.Response, defaultMsg string) error {
-	err := GenericError{res.StatusCode, defaultMsg}
-
-	if res.StatusCode == http.StatusBadRequest {
-		valError := ValidationError{GenericError: err}
-		parseErr := json.NewDecoder(res.Body).Decode(&valError)
-		if parseErr == nil {
-			return valError
-		}
-	}
-
-	return err
 }

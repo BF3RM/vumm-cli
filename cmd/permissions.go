@@ -2,8 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/apex/log"
 	"github.com/spf13/cobra"
-	"github.com/vumm/cli/internal/registry"
+	"github.com/vumm/cli/pkg/api"
 	"strings"
 )
 
@@ -31,7 +32,19 @@ or give someone access to a private mod by granting them the readonly permission
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			mod, tag := extractModNameAndTag(args[0])
-			return registry.GrantModUserPermissions(mod, tag, args[1], args[2])
+			permission, err := api.PermissionTypeFromString(args[2])
+			if err != nil {
+				return err
+			}
+			_, err = client.Mods.GrantModPermissions(cmd.Context(), mod, tag, args[1], permission)
+
+			if err != nil {
+				return err
+			}
+
+			log.Infof("successfully granted user %s %s permissions on mod %s", args[1], args[2], args[0])
+
+			return nil
 		},
 	}
 
@@ -51,7 +64,15 @@ func newRevokeCmd() *revokeCmd {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			mod, tag := extractModNameAndTag(args[0])
-			return registry.RevokeModUserPermissions(mod, tag, args[1])
+
+			_, err := client.Mods.RevokeModPermissions(cmd.Context(), mod, tag, args[1])
+			if err != nil {
+				return err
+			}
+
+			log.Infof("successfully revoked user %s permissions on mod %s", args[1], args[0])
+
+			return nil
 		},
 	}
 
