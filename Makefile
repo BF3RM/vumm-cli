@@ -1,5 +1,5 @@
 WIN_X86_PATH := dist/vumm_windows_386
-WIN_X64_PATH := dist/vumm_windows_amd64
+WIN_X64_PATH := dist/vumm_windows_amd64_v1
 
 VERSION ?= 0.0.1
 
