@@ -34,7 +34,7 @@ jobs:
           retention-days: 1
           path: |
             dist/vumm_windows_386
-            dist/vumm_windows_amd64
+            dist/vumm_windows_amd64_v1
 
   msi:
     needs: goreleaser
@@ -63,7 +63,7 @@ jobs:
           msi_86=dist/vumm_windows_386.msi
           msi_64=dist/vumm_windows_amd64.msi
           mv dist/vumm_windows_386/vumm.msi ${msi_86}
-          mv dist/vumm_windows_amd64/vumm.msi ${msi_64}
+          mv dist/vumm_windows_amd64_v1/vumm.msi ${msi_64}
           gh release upload "${tag}" "${msi_86}" "${msi_64}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
