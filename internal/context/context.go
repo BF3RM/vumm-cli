@@ -21,11 +21,12 @@ type Context struct {
 	values map[interface{}]interface{}
 }
 
-func NewWithTimeout(duration time.Duration) (*Context, context.CancelFunc) {
+func NewWithTimeout(client *api.Client, duration time.Duration) (*Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(context.Background(), duration)
 
 	return &Context{
 		Context: ctx,
+		Client:  client,
 		values:  map[interface{}]interface{}{},
 	}, cancel
 }

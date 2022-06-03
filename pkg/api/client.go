@@ -1,81 +1,151 @@
 package api
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
-type Client struct {
-	baseUrl string
-	token   *[]byte
-	client  *http.Client
+type Option func(c *Client) error
+
+func BaseURL(baseUrl string) Option {
+	return func(c *Client) error {
+		parsedUrl, err := url.Parse(baseUrl)
+		if err != nil {
+			return err
+		}
+		c.baseUrl = parsedUrl
+		return nil
+	}
 }
 
-func NewClient(baseUrl string) *Client {
-	return &Client{
+func RoundTrip(t http.RoundTripper) Option {
+	return func(c *Client) error {
+		c.client.Transport = t
+		return nil
+	}
+}
+
+var defaultBaseUrl = "https://vumm.bf3reality.com/api/v1/"
+
+type Client struct {
+	baseUrl *url.URL
+	client  *http.Client
+
+	common commonService
+
+	Auth *AuthService
+	Mods *ModsService
+}
+
+func New(opts ...Option) (*Client, error) {
+	baseUrl, _ := url.Parse(defaultBaseUrl)
+
+	client := &Client{
 		baseUrl: baseUrl,
 		client:  &http.Client{},
 	}
-}
 
-func (c *Client) SetToken(token *[]byte) {
-	c.token = token
-}
-
-func (c *Client) doRequest(req *http.Request) ([]byte, error) {
-	if c.token != nil {
-		req.Header.Set("Authorization", string(*c.token))
+	for _, option := range opts {
+		err := option(client)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	// Do request
+	client.common.client = client
+	client.Auth = (*AuthService)(&client.common)
+	client.Mods = (*ModsService)(&client.common)
+
+	return client, nil
+}
+
+func (c *Client) NewRequest(method, path string, body interface{}) (*http.Request, error) {
+	reqUrl, err := c.baseUrl.Parse(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf io.ReadWriter
+	if body != nil {
+		buf = &bytes.Buffer{}
+		err := json.NewEncoder(buf).Encode(body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	req, err := http.NewRequest(method, reqUrl.String(), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	return req, nil
+}
+
+func (c *Client) DoRequest(ctx context.Context, req *http.Request) (*http.Response, error) {
+	req = req.WithContext(ctx)
+
 	res, err := c.client.Do(req)
+	if err != nil {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+			return nil, err
+		}
+	}
+
+	err = c.checkResponse(res)
+	return res, err
+}
+
+func (c *Client) Do(ctx context.Context, req *http.Request, v interface{}) (*http.Response, error) {
+	res, err := c.DoRequest(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
 
-	// Check errors
-	if res.StatusCode != http.StatusOK {
-		return nil, c.catchErrorResponse(res)
+	switch v := v.(type) {
+	case nil:
+	case io.Writer:
+		_, err = io.Copy(v, res.Body)
+	default:
+		err = json.NewDecoder(res.Body).Decode(v)
 	}
 
-	return ioutil.ReadAll(res.Body)
+	return res, err
 }
 
-func (c *Client) doJsonRequest(req *http.Request, v interface{}) error {
-	// Set headers
-	req.Header.Set("Content-Type", "application/json")
-	if c.token != nil {
-		req.Header.Set("Authorization", string(*c.token))
+func (c *Client) checkResponse(res *http.Response) error {
+	// All statuses between 200 <-> 299 are ok
+	if c := res.StatusCode; 200 <= c && c <= 299 {
+		return nil
 	}
 
-	// Do request
-	res, err := c.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-
-	// Check errors
-	if res.StatusCode >= http.StatusMultipleChoices {
-		return c.catchErrorResponse(res)
+	resErr := &GenericError{Response: res}
+	data, err := ioutil.ReadAll(res.Body)
+	if err == nil && data != nil {
+		json.Unmarshal(data, resErr)
 	}
 
-	// Unmarshall response
-	return json.NewDecoder(res.Body).Decode(&v)
-}
-
-func (c Client) catchErrorResponse(res *http.Response) error {
-	err := GenericError{res.StatusCode, "unknown error occurred"}
-
-	if res.StatusCode == http.StatusBadRequest {
-		valError := ValidationError{GenericError: err}
-		parseErr := json.NewDecoder(res.Body).Decode(&valError)
-		if parseErr == nil {
-			return valError
-		}
+	switch res.StatusCode {
+	case http.StatusUnauthorized:
+		return (*UnauthorizedError)(resErr)
+	case http.StatusBadRequest:
+		return (*BadRequestError)(resErr)
+	case http.StatusConflict:
+		return (*ConflictError)(resErr)
+	default:
+		return resErr
 	}
-
-	return err
 }

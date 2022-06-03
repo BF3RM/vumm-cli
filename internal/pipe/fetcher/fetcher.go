@@ -72,7 +72,7 @@ func (p Pipe) Run(ctx *context.Context) error {
 }
 
 func (p Pipe) resolveModVersion(ctx *context.Context, dep modDependency) (api.ModVersion, error) {
-	mod, err := ctx.Client.GetMod(dep.Name)
+	mod, _, err := ctx.Client.Mods.GetMod(ctx, dep.Name)
 	if err != nil {
 		return api.ModVersion{}, err
 	}

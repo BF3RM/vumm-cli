@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/vumm/cli/internal/common"
-	"github.com/vumm/cli/internal/registry"
 	"github.com/vumm/cli/internal/updater"
+	"github.com/vumm/cli/pkg/api"
 	"os"
 )
 
@@ -15,6 +15,8 @@ func Execute() {
 	log.SetHandler(cli.Default)
 	newRootCmd().Execute()
 }
+
+var client *api.Client
 
 type rootCmd struct {
 	cmd     *cobra.Command
@@ -41,18 +43,25 @@ func newRootCmd() *rootCmd {
 		SilenceUsage:  true,
 		Version:       common.GetFullVersion(),
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			var options []api.Option
 			registryUrl := viper.GetString("registry")
 			if registryUrl != "" {
-				registry.SetRegistryUrl(registryUrl)
+				options = append(options, api.BaseURL(registryUrl))
 			}
 
 			token := viper.GetString("token")
 			if token != "" {
-				registry.SetRegistryAccessToken(token)
+				options = append(options, api.RoundTrip(&api.TokenAuthTransport{Token: token}))
 			}
 
 			if root.verbose {
 				log.SetLevel(log.DebugLevel)
+			}
+
+			var err error
+			client, err = api.New(options...)
+			if err != nil {
+				log.WithError(err).Fatal("Failed to initialise api client")
 			}
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {

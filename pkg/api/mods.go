@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/Masterminds/semver/v3"
@@ -90,32 +91,37 @@ func (m *Mod) GetLatestVersionByConstraints(constraints *common.SemverConstraint
 	return ModVersion{}, ErrModVersionNotFound
 }
 
+type ModsService commonService
+
 // GetMod fetches a mod from the registry
-func (c Client) GetMod(modName string) (*Mod, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/mods/%s", c.baseUrl, modName), nil)
+func (s ModsService) GetMod(ctx context.Context, modName string) (*Mod, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("mods/%s", modName), nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	mod := Mod{}
-	if err := c.doJsonRequest(req, &mod); err != nil {
-		return nil, err
+	mod := new(Mod)
+	res, err := s.client.Do(ctx, req, &mod)
+
+	if err != nil {
+		return nil, res, err
 	}
 
-	return &mod, nil
+	return mod, res, nil
 }
 
-// GetModArchive fetches a mods archive from the registry
-func (c Client) GetModArchive(modName string, modVersion *semver.Version) (*bytes.Buffer, error) {
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/mods/%s/%s/download", c.baseUrl, modName, modVersion), nil)
+// DownloadModArchive fetches a mods archive from the registry
+func (s ModsService) DownloadModArchive(ctx context.Context, modName string, modVersion *semver.Version) (*bytes.Buffer, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("mods/%s/%s/download", modName, modVersion), nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	res, err := c.doRequest(req)
+	buf := new(bytes.Buffer)
+	res, err := s.client.Do(ctx, req, buf)
 	if err != nil {
-		return nil, err
+		return nil, res, err
 	}
 
-	return bytes.NewBuffer(res), nil
+	return buf, res, nil
 }

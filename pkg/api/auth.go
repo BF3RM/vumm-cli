@@ -1,8 +1,7 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -20,34 +19,31 @@ type credentialsDto struct {
 	Type     PermissionType `json:"type"`
 }
 
-func (c Client) Login(username string, password string, permission PermissionType) (*AuthResult, error) {
-	return c.authRequest("login", username, password, permission)
+type AuthService commonService
+
+func (s AuthService) Login(ctx context.Context, username string, password string, permission PermissionType) (*AuthResult, *http.Response, error) {
+	return s.authRequest(ctx, "login", username, password, permission)
 }
 
-func (c Client) Register(username string, password string, permission PermissionType) (*AuthResult, error) {
-	return c.authRequest("register", username, password, permission)
+func (s AuthService) Register(ctx context.Context, username string, password string, permission PermissionType) (*AuthResult, *http.Response, error) {
+	return s.authRequest(ctx, "register", username, password, permission)
 }
 
-func (c Client) authRequest(endpoint, username, password string, permission PermissionType) (*AuthResult, error) {
-	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(credentialsDto{
+func (s AuthService) authRequest(ctx context.Context, endpoint, username, password string, permission PermissionType) (*AuthResult, *http.Response, error) {
+	req, err := s.client.NewRequest(http.MethodPost, fmt.Sprintf("auth/%s", endpoint), &credentialsDto{
 		Username: username,
 		Password: password,
 		Type:     permission,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/auth/%s", c.baseUrl, endpoint), &buf)
+	result := new(AuthResult)
+	res, err := s.client.Do(ctx, req, result)
 	if err != nil {
-		return nil, err
+		return nil, res, err
 	}
 
-	var result AuthResult
-	if err := c.doJsonRequest(req, &result); err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	return result, res, nil
 }

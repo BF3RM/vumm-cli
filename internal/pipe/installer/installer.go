@@ -46,7 +46,7 @@ func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, ver
 	return middleware.Logging(fmt.Sprintf("installing %s@%s", version.Name, version.Version), func(ctx *context.Context) error {
 		log.Info("fetching archive")
 
-		archiveBuf, err := ctx.Client.GetModArchive(version.Name, version.Version)
+		archiveBuf, _, err := ctx.Client.Mods.DownloadModArchive(ctx, version.Name, version.Version)
 
 		if err != nil {
 			return err
