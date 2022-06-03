@@ -55,16 +55,13 @@ func (p Pipe) installModVersion(ctx *context.Context, packager tar.Packager, ver
 
 		modFolder := filepath.Join(ctx.WorkingDirectory, "Mods", version.Name)
 
-		// Check if folder exists
-		if _, err := os.Stat(modFolder); err != nil && !os.IsNotExist(err) {
-			return err
-		}
-
-		if err := os.RemoveAll(modFolder); err != nil {
-			return err
-		}
-
+		// 1. Make sure the mods folder exists
 		if err := os.MkdirAll(modFolder, os.ModePerm); err != nil {
+			return err
+		}
+
+		// 2. Make sure the ext folder is removed
+		if err := os.RemoveAll(filepath.Join(modFolder, "ext")); err != nil {
 			return err
 		}
 
