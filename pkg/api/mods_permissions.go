@@ -46,8 +46,7 @@ func (s ModsService) GrantModPermissions(ctx context.Context, modName string, mo
 		return nil, err
 	}
 
-	var res interface{}
-	return s.client.Do(ctx, req, &res)
+	return s.client.Do(ctx, req, nil)
 }
 
 func (s ModsService) RevokeModPermissions(ctx context.Context, modName string, modTag string, username string) (*http.Response, error) {
@@ -59,6 +58,5 @@ func (s ModsService) RevokeModPermissions(ctx context.Context, modName string, m
 		return nil, err
 	}
 
-	var res interface{}
-	return s.client.Do(ctx, req, &res)
+	return s.client.Do(ctx, req, nil)
 }
