@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "vumm_api",
+    "vumm_cli",
+]
