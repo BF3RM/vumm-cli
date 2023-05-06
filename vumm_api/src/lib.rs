@@ -1,6 +1,20 @@
 pub mod mods;
 
+use serde::de::DeserializeOwned;
+use serde_json::Value;
+
 use crate::mods::ModsEndpoint;
+
+#[derive(thiserror::Error, Debug)]
+pub enum ClientError {
+    #[error("request: {0}")]
+    Internal(#[from] reqwest::Error),
+
+    #[error("status code {}", reqwest::Response::status(.0))]
+    StatusCode(reqwest::Response),
+}
+
+pub type ClientResult<T> = Result<T, ClientError>;
 
 pub struct Client {
     http_client: reqwest::Client,
@@ -13,7 +27,7 @@ impl Client {
         Self {
             http_client: reqwest::Client::new(),
             base_url: String::from("https://vumm.bf3reality.com/api/v1"),
-            bearer_token: None
+            bearer_token: None,
         }
     }
 
@@ -25,66 +39,56 @@ impl Client {
         self.bearer_token = Some(token);
     }
 
-    pub async fn get(&self, path: String) -> Result<reqwest::Response, reqwest::Error> {
-        let res = self.create_request(reqwest::Method::GET, path)
-            .send()
-            .await?;
-
-        return Ok(res);
+    pub async fn get(&self, path: String) -> ClientResult<reqwest::Response> {
+        self.request(reqwest::Method::GET, path, |req| req).await
     }
 
-    pub async fn post(&self, path: String, body: String) -> Result<reqwest::Response, reqwest::Error> {
-        let res = self.create_request(reqwest::Method::POST, path)
-            .body(body)
-            .send()
+    pub async fn post(&self, path: String, body: &Value) -> ClientResult<reqwest::Response> {
+        self.request(reqwest::Method::POST, path, |req| req.json(body))
             .await
-            .expect("Failed send post request");
-
-        return Ok(res);
     }
 
-    pub async fn put(&self, path: String, body: String) -> Result<reqwest::Response, reqwest::Error> {
-        let res = self.create_request(reqwest::Method::PUT, path)
-            .body(body)
-            .send()
+    pub async fn put(&self, path: String, body: &Value) -> ClientResult<reqwest::Response> {
+        self.request(reqwest::Method::PUT, path, |req| req.json(body))
             .await
-            .expect("Failed send put request");
-
-        return Ok(res);
     }
 
-    pub async fn delete(&self, path: String) -> Result<reqwest::Response, reqwest::Error> {
-        let res = self.create_request(reqwest::Method::DELETE, path)
-            .send()
+    pub async fn delete(&self, path: String, body: &Value) -> ClientResult<reqwest::Response> {
+        self.request(reqwest::Method::DELETE, path, |req| req.json(body))
             .await
-            .expect("Failed send delete request");
-
-        return Ok(res);
     }
 
-    fn create_request(&self, method: reqwest::Method, path: String) -> reqwest::RequestBuilder {
+    async fn request<B>(
+        &self,
+        method: reqwest::Method,
+        path: String,
+        request_builder: B,
+    ) -> ClientResult<reqwest::Response>
+    where
+        B: FnOnce(reqwest::RequestBuilder) -> reqwest::RequestBuilder,
+    {
         let url = format!("{}{}", self.base_url, path);
-        let mut builder = self.http_client.request(method, url);
+        let mut request = self.http_client.request(method.clone(), url);
 
         if let Some(token) = &self.bearer_token {
-            builder = builder.header("Authorization", token);
+            request = request.header("Authorization", token);
         }
 
-        return builder;
+        request = request_builder(request);
+
+        let response = request.send().await?;
+
+        if response.status().is_success() {
+            Ok(response)
+        } else {
+            Err(ClientError::StatusCode(response))
+        }
     }
-}
 
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    async fn parse_json_response<T: DeserializeOwned>(
+        &self,
+        response: reqwest::Response,
+    ) -> ClientResult<T> {
+        response.json::<T>().await.map_err(Into::into)
     }
 }
