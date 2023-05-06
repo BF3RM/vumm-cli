@@ -1,6 +1,33 @@
-[workspace]
-
-members = [
-    "vumm_api",
-    "vumm_cli",
+[package]
+authors = ["IllustrisJack", "paulhobbel"]
+name = "vumm"
+version = "0.1.0"
+license = "MIT"
+readme = "README.md"
+description = "Venice Unleashed Mod Manager is a simple, fast and easy to use mod manager for Venice Unleashed"
+homepage = "https://github.com/BF3RM/vumm"
+repository = "https://github.com/BF3RM/vumm"
+keywords = [
+    "venice-unleashed",
+    "mod-manager",
+    "mod",
+    "venice",
+    "unleashed",
+    "bf3",
+    "battlefield",
+    "battlefield-3",
 ]
+edition = "2021"
+rust-version = "1.68.0"
+
+[workspace]
+members = ["vumm_api", "vumm_cli", "vumm_installer"]
+
+[dependencies]
+vumm_api = { path = "vumm_api" }
+
+tokio = { version = "1.28.0", features = ["full"] }
+
+[[example]]
+name = "client_get_mod"
+path = "examples/client_get_mod.rs"

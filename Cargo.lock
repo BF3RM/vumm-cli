@@ -1038,6 +1038,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
 
 [[package]]
+name = "vumm"
+version = "0.1.0"
+dependencies = [
+ "tokio",
+ "vumm_api",
+]
+
+[[package]]
 name = "vumm_api"
 version = "0.1.0"
 dependencies = [
@@ -1058,6 +1066,10 @@ dependencies = [
  "tokio",
  "vumm_api",
 ]
+
+[[package]]
+name = "vumm_installer"
+version = "0.1.0"
 
 [[package]]
 name = "want"
