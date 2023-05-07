@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1.28.0", features = ["full"] }
-clap = { version = "4.2.7", features = ["derive"]}
+clap = { version = "4.2.7", features = ["derive"] }
 vumm_api = { path = "../vumm_api" }

@@ -31,3 +31,8 @@ tokio = { version = "1.28.0", features = ["full"] }
 [[example]]
 name = "client_get_mod"
 path = "examples/client_get_mod.rs"
+
+[profile.release]
+strip = true
+opt-level = "z"
+lto = true
