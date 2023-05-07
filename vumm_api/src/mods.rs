@@ -22,7 +22,7 @@ pub struct ModVersion {
     pub description: Option<String>,
     pub author: Option<String>,
     pub version: Version,
-    pub dependencies: HashMap<String, VersionReq>,
+    pub dependencies: Option<HashMap<String, VersionReq>>,
 }
 
 impl Mod {

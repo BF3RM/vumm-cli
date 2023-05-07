@@ -6,15 +6,27 @@ use serde_json::Value;
 use crate::mods::ModsEndpoint;
 
 #[derive(thiserror::Error, Debug)]
-pub enum ClientError {
-    #[error("request: {0}")]
-    Internal(#[from] reqwest::Error),
+pub enum Error {
+    #[error("bad request")]
+    BadRequest(reqwest::Response),
+
+    #[error("unauthorized")]
+    Unauthorized(reqwest::Response),
+
+    #[error("forbidden")]
+    Forbidden(reqwest::Response),
+
+    #[error("not found")]
+    NotFound(reqwest::Response),
 
     #[error("status code {}", reqwest::Response::status(.0))]
-    StatusCode(reqwest::Response),
+    Unknown(reqwest::Response),
+
+    #[error("failed to process request: {0}")]
+    Internal(#[from] reqwest::Error),
 }
 
-pub type ClientResult<T> = Result<T, ClientError>;
+pub type ClientResult<T> = Result<T, Error>;
 
 pub struct Client {
     http_client: reqwest::Client,
@@ -81,7 +93,14 @@ impl Client {
         if response.status().is_success() {
             Ok(response)
         } else {
-            Err(ClientError::StatusCode(response))
+            Err(match response.status() {
+                // TODO: handle validation errors
+                reqwest::StatusCode::BAD_REQUEST => Error::BadRequest(response),
+                reqwest::StatusCode::UNAUTHORIZED => Error::Unauthorized(response),
+                reqwest::StatusCode::FORBIDDEN => Error::Forbidden(response),
+                reqwest::StatusCode::NOT_FOUND => Error::NotFound(response),
+                _ => Error::Unknown(response),
+            })
         }
     }
 

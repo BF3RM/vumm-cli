@@ -1,5 +1,4 @@
-use vumm_api::ClientError;
-use clap::{Subcommand, Parser};
+use clap::{Parser, Subcommand};
 
 mod commands;
 
