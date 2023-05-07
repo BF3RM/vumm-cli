@@ -1,27 +1,29 @@
 use vumm_api::ClientError;
+use clap::{Subcommand, Parser};
+
+mod commands;
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = None)]
+#[command(propagate_version = true)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+#[clap(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"), about = env!("CARGO_PKG_DESCRIPTION"))]
+enum Commands {
+    SayHello(commands::talk::SayHello),
+    SayHelloNicely(commands::talk::SayHelloNicely),
+}
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
+    let cli: Cli = Cli::parse();
 
-    let client = vumm_api::Client::new();
-
-    let mod_name = String::from("mapeditor");
-    let mod_version = String::from("0.2.0");
-
-    let mod_response = client.mods().get_version(mod_name, mod_version).await;
-
-    match mod_response {
-        Ok(mod_) => {
-            println!("Mod: {:?}", mod_);
-        }
-        Err(e) => match e {
-            ClientError::StatusCode(response) => {
-                println!("Error: {}", response.status());
-            }
-            ClientError::Internal(e) => {
-                println!("Error: {}", e);
-            }
-        },
+    match &cli.command {
+        Commands::SayHello(cmd) => cmd.run().await,
+        Commands::SayHelloNicely(cmd) => cmd.run().await,
     }
 }
