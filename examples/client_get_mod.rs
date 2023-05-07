@@ -2,9 +2,11 @@ use vumm_api::ClientError;
 
 #[tokio::main]
 async fn main() {
-    let client = vumm_api::Client::new();
+    let mut client = vumm_api::Client::new();
 
-    let mod_name = String::from("mapeditor");
+    client.set_bearer_token("007e9635-7a92-4796-adb9-26d468de6b74".to_string());
+
+    let mod_name = String::from("realitymod");
     let mod_version = String::from("0.2.0");
 
     let mod_response = client.mods().get_version(mod_name, mod_version).await;
