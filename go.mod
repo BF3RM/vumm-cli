@@ -11,5 +11,5 @@ require (
 	github.com/google/go-cmp v0.5.6
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
+	golang.org/x/crypto v0.10.0
 )
