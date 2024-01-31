@@ -47,10 +47,21 @@ impl Mod {
     }
 }
 
+struct UnderlinedText(String);
+
+impl fmt::Display for UnderlinedText {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let start_underline = "\x1B[4m";
+        let reset_formatting = "\x1B[0m";
+
+        write!(f, "{}{}{}", start_underline, self.0, reset_formatting)
+    }
+}
+
+
 impl fmt::Display for ModVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Mod Name: {}\n", self.name)?;
-        write!(f, "Mod Version: {}.{}.{}\n", self.version.major, self.version.minor, self.version.patch)?;
+        write!(f, "{}\n", UnderlinedText(format!("{}.{}.{}", self.version.major, self.version.minor, self.version.patch)))?;
 
         match &self.dependencies {
             Some(dependencies) if !dependencies.is_empty() => {
@@ -60,7 +71,7 @@ impl fmt::Display for ModVersion {
                     write!(f, "- {}: {}\n", dep, version_req)?;
                 }
             }
-            _ => write!(f, "No dependencies.\n")?,
+            _ => write!(f, "No dependencies.")?,
         }
 
         Ok(())

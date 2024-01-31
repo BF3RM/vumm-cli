@@ -1247,6 +1247,7 @@ name = "vumm_cli"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "semver",
  "tokio",
  "vumm_api",
  "vumm_installer",
