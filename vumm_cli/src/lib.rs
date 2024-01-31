@@ -20,7 +20,7 @@ enum Commands {
 pub async fn run_cli() {
     let cli: Cli = Cli::parse();
 
-    match &cli.command {
+    match cli.command {
         Commands::Info(cmd) => cmd.run().await,
     }
 }
