@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Cursor};
+use std::{collections::HashMap, io::Cursor, fmt};
 
 use flate2::read::GzDecoder;
 use semver::{Version, VersionReq};
@@ -44,6 +44,47 @@ impl Mod {
         }
 
         return None;
+    }
+}
+
+impl fmt::Display for ModVersion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Mod Name: {}\n", self.name)?;
+        write!(f, "Mod Version: {}.{}.{}\n", self.version.major, self.version.minor, self.version.patch)?;
+
+        match &self.dependencies {
+            Some(dependencies) if !dependencies.is_empty() => {
+                write!(f, "Mod Dependencies:\n")?;
+                for (dep, version_req) in dependencies {
+                    // Adjust the format as per the structure of VersionReq
+                    write!(f, "- {}: {}\n", dep, version_req)?;
+                }
+            }
+            _ => write!(f, "No dependencies.\n")?,
+        }
+
+        Ok(())
+    }
+}
+
+impl fmt::Display for Mod {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Mod Name: {}", self.name)?;
+        if let Some(description) = &self.description {
+            writeln!(f, "Description: {}", description)?;
+        }
+        if let Some(author) = &self.author {
+            writeln!(f, "Author: {}", author)?;
+        }
+        writeln!(f, "Tags:")?;
+        for (tag, version) in &self.tags {
+            writeln!(f, "- {}: {}", tag, version)?;
+        }
+        writeln!(f, "Versions:")?;
+        for (_version_number, mod_version) in &self.versions {
+            writeln!(f, "{}", mod_version)?;
+        }
+        Ok(())
     }
 }
 

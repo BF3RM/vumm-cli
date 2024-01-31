@@ -1185,6 +1185,7 @@ version = "0.1.0"
 dependencies = [
  "tokio",
  "vumm_api",
+ "vumm_cli",
 ]
 
 [[package]]
@@ -1209,6 +1210,7 @@ dependencies = [
  "clap",
  "tokio",
  "vumm_api",
+ "vumm_installer",
 ]
 
 [[package]]

@@ -9,3 +9,4 @@ edition = "2021"
 tokio = { version = "1.28.0", features = ["full"] }
 clap = { version = "4.2.7", features = ["derive"] }
 vumm_api = { path = "../vumm_api" }
+vumm_installer = { path = "../vumm_installer"}

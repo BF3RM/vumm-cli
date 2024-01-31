@@ -1,1 +1,1 @@
-pub mod talk;
+pub mod get_info;

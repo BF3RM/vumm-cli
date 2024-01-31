@@ -13,16 +13,14 @@ struct Cli {
 #[derive(Subcommand)]
 #[clap(version = env!("CARGO_PKG_VERSION"), author = env!("CARGO_PKG_AUTHORS"), about = env!("CARGO_PKG_DESCRIPTION"))]
 enum Commands {
-    SayHello(commands::talk::SayHello),
-    SayHelloNicely(commands::talk::SayHelloNicely),
+    Info(commands::get_info::ModInfo)
 }
 
 #[tokio::main]
-async fn main() {
+pub async fn run_cli() {
     let cli: Cli = Cli::parse();
 
     match &cli.command {
-        Commands::SayHello(cmd) => cmd.run().await,
-        Commands::SayHelloNicely(cmd) => cmd.run().await,
+        Commands::Info(cmd) => cmd.run().await,
     }
 }

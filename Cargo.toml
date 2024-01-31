@@ -2,7 +2,6 @@
 authors = ["IllustrisJack", "paulhobbel"]
 name = "vumm"
 version = "0.1.0"
-license = "MIT"
 readme = "README.md"
 description = "Venice Unleashed Mod Manager is a simple, fast and easy to use mod manager for Venice Unleashed"
 homepage = "https://github.com/BF3RM/vumm"
@@ -25,6 +24,7 @@ members = ["vumm_api", "vumm_cli", "vumm_installer"]
 
 [dependencies]
 vumm_api = { path = "vumm_api" }
+vumm_cli = { path = "vumm_cli" }
 
 tokio = { version = "1.28.0", features = ["full"] }
 
