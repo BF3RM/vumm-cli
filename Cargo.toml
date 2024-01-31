@@ -17,7 +17,7 @@ keywords = [
     "battlefield-3",
 ]
 edition = "2021"
-rust-version = "1.68.0"
+rust-version = "1.74.0"
 
 [workspace]
 members = ["vumm_api", "vumm_cli", "vumm_installer"]
@@ -26,7 +26,7 @@ members = ["vumm_api", "vumm_cli", "vumm_installer"]
 vumm_api = { path = "vumm_api" }
 vumm_cli = { path = "vumm_cli" }
 
-tokio = { version = "1.28.0", features = ["full"] }
+tokio = { version = "1.35", features = ["full"] }
 
 [[example]]
 name = "client_get_mod"
