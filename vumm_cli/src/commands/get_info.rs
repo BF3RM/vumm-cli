@@ -1,19 +1,31 @@
 use clap::Args;
-use vumm_api::{Client, Error};
+use regex::Regex;
 use semver::VersionReq;
+use vumm_api::{Client, Error};
 
 #[derive(Args)]
-#[command(about = "Get information about a specific mod", arg_required_else_help = true)]
+#[command(
+    about = "Get information about a specific mod",
+    arg_required_else_help = true
+)]
 pub struct ModInfo {
-    #[arg(help = "Name of the mod", required = true)]
+    #[arg(help = "Name of the mod OR name@version of mod", required = true)]
     mod_name: String,
     #[arg(help = "Version/Tag of the mod (optional)")]
     mod_version: Option<String>,
 }
 
 impl ModInfo {
-    pub async fn run(&self) {
+    pub async fn run(&mut self) {
         let client = Client::new();
+
+        let re = Regex::new(r"^(\w+)@(\d+\.\d+\.\d+)$").unwrap();
+        if let Some(captures) = re.captures(self.mod_name.clone().as_str()) {
+            let mod_name_part = &captures[1];
+            let version_part = &captures[2];
+            self.mod_name = mod_name_part.to_owned();
+            self.mod_version = Some(version_part.to_owned());
+        }
 
         let mod_ = match client.mods().get(self.mod_name.clone()).await {
             Ok(returned_mod) => returned_mod,
@@ -52,5 +64,3 @@ impl ModInfo {
         }
     }
 }
-
-
