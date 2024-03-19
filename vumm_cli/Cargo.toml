@@ -1,0 +1,15 @@
+[package]
+name = "vumm_cli"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.35", features = ["full"] }
+clap = { version = "4.4", features = ["derive"] }
+semver = "1.0"
+regex = "1.10"
+
+vumm_api = { path = "../vumm_api" }
+vumm_installer = { path = "../vumm_installer" }
