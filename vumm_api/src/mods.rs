@@ -1,4 +1,4 @@
-use std::{collections::HashMap, io::Cursor, fmt};
+use std::{collections::HashMap, fmt, io::Cursor};
 
 use flate2::read::GzDecoder;
 use semver::{Version, VersionReq};
@@ -45,6 +45,21 @@ impl Mod {
 
         return None;
     }
+
+    pub fn get_last_versions(&self, max_count: usize) -> Mod {
+        let mut versions: Vec<(&String, &ModVersion)> = self.versions.iter().collect();
+        versions.sort_by(|a, b| b.1.version.cmp(&a.1.version));
+        versions.truncate(max_count);
+
+        let new_versions: HashMap<String, ModVersion> = versions
+            .into_iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect();
+        let mut mod_clone = self.clone();
+        mod_clone.versions = new_versions;
+
+        mod_clone
+    }
 }
 
 struct UnderlinedText(String);
@@ -58,10 +73,33 @@ impl fmt::Display for UnderlinedText {
     }
 }
 
-
 impl fmt::Display for ModVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}\n", UnderlinedText(format!("{}.{}.{}", self.version.major, self.version.minor, self.version.patch)))?;
+        match self.version.pre.len() > 0 {
+            true => {
+                write!(
+                    f,
+                    "{}\n",
+                    UnderlinedText(format!(
+                        "{}.{}.{}-{}",
+                        self.version.major,
+                        self.version.minor,
+                        self.version.patch,
+                        self.version.pre
+                    ))
+                )?;
+            }
+            false => {
+                write!(
+                    f,
+                    "{}\n",
+                    UnderlinedText(format!(
+                        "{}.{}.{}",
+                        self.version.major, self.version.minor, self.version.patch
+                    ))
+                )?;
+            }
+        }
 
         match &self.dependencies {
             Some(dependencies) if !dependencies.is_empty() => {
@@ -91,7 +129,7 @@ impl fmt::Display for Mod {
         for (tag, version) in &self.tags {
             writeln!(f, "- {}: {}", tag, version)?;
         }
-        writeln!(f, "Versions:")?;
+        writeln!(f, "Latest Versions:")?;
         for (_version_number, mod_version) in &self.versions {
             writeln!(f, "{}", mod_version)?;
         }

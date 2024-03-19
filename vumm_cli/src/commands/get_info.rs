@@ -3,6 +3,8 @@ use regex::Regex;
 use semver::VersionReq;
 use vumm_api::{Client, Error};
 
+const SHOW_LAST_VERSION_COUNT: usize = 3;
+
 #[derive(Args)]
 #[command(
     about = "Get information about a specific mod",
@@ -11,7 +13,7 @@ use vumm_api::{Client, Error};
 pub struct ModInfo {
     #[arg(help = "Name of the mod OR name@version of mod", required = true)]
     mod_name: String,
-    #[arg(help = "Version/Tag of the mod (optional)")]
+    #[arg(help = "Version/Tag of the mod OR Version comparator [e.g. '<0.5'] (optional)")]
     mod_version: Option<String>,
 }
 
@@ -60,7 +62,10 @@ impl ModInfo {
             }
         } else {
             // If no specific version requirement or tag is provided, simply print the mod
-            println!("Mod found: {}", mod_);
+            println!(
+                "Mod found: {}",
+                mod_.get_last_versions(SHOW_LAST_VERSION_COUNT)
+            );
         }
     }
 }
