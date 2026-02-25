@@ -44,23 +44,7 @@ impl DependencyResolver {
         unresolved.push_back(ModVersionConstraint::new(mod_name, mod_version));
 
         while let Some(constraint) = unresolved.pop_front() {
-            // Check if installed mod matches version constraint
-            // if let Some(installed) = self.lock.get(*name) {
-            //     if let Some(constraint_version) = &constraint.version {
-            //         if !constraint_version.matches(&installed.version) {
-            //             println!("Version mismatch");
-            //             continue;
-            //         }
-            //     }
-            // }
-
-            println!("Resolving dependency constraint {}", constraint);
-
             let resolved_version = self.resolve_dependency_version(&constraint).await?;
-
-            println!("Resolved version: {:?}", resolved_version);
-
-            // TODO: Should I check if the mod was already added?
 
             lock_file.mods.insert(
                 constraint.name.to_string(),

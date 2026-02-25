@@ -151,7 +151,8 @@ impl ModsEndpoint<'_> {
     /// let client = Client::new();
     /// let mod_name = String::from("mapeditor");
     ///
-    /// let mod_response = client.mods().get(mod_name);
+    /// let mods = client.mods();
+    /// let mod_response = mods.get(mod_name);
     /// ```
     ///
     /// # Arguments

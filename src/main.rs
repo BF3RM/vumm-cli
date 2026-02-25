@@ -1,6 +1,8 @@
 use vumm_cli;
 
-// Wrapper Program
 fn main() {
-    vumm_cli::run_cli();
+    if let Err(e) = vumm_cli::run_cli() {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
 }

@@ -1,8 +1,10 @@
+pub mod auth;
 pub mod mods;
 
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
+use crate::auth::{AuthEndpoint, ModsPublishEndpoint};
 use crate::mods::ModsEndpoint;
 
 #[derive(thiserror::Error, Debug)]
@@ -24,6 +26,9 @@ pub enum Error {
 
     #[error("failed to process request: {0}")]
     Internal(#[from] reqwest::Error),
+
+    #[error("io error: {0}")]
+    Io(#[from] std::io::Error),
 }
 
 pub type ClientResult<T> = Result<T, Error>;
@@ -32,6 +37,16 @@ pub struct Client {
     http_client: reqwest::Client,
     base_url: String,
     bearer_token: Option<String>,
+}
+
+impl Clone for Client {
+    fn clone(&self) -> Self {
+        Self {
+            http_client: self.http_client.clone(),
+            base_url: self.base_url.clone(),
+            bearer_token: self.bearer_token.clone(),
+        }
+    }
 }
 
 impl Client {
@@ -43,12 +58,24 @@ impl Client {
         }
     }
 
-    pub fn mods(&self) -> ModsEndpoint {
+    pub fn mods(&self) -> ModsEndpoint<'_> {
         ModsEndpoint { client: self }
+    }
+
+    pub fn auth(&self) -> AuthEndpoint<'_> {
+        AuthEndpoint { client: self }
+    }
+
+    pub fn mods_publish(&self) -> ModsPublishEndpoint<'_> {
+        ModsPublishEndpoint { client: self }
     }
 
     pub fn set_bearer_token(&mut self, token: String) {
         self.bearer_token = Some(token);
+    }
+
+    pub fn set_base_url(&mut self, url: String) {
+        self.base_url = url;
     }
 
     pub async fn get(&self, path: String) -> ClientResult<reqwest::Response> {
