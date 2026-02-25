@@ -47,11 +47,21 @@ So the following command will install the latest version of [BlueprintManager](h
 ```bash
 vumm install blueprintmanager
 ```
-You can also specify a specific release tag or [semver constraint](https://docs.npmjs.com/about-semantic-versioning):
+You can also specify a specific release tag, version, or [semver constraint](https://docs.npmjs.com/about-semantic-versioning):
 ```bash
-vumm install blueprintmanager@^1.0.0  # install the latest minor version of 1.x
-vumm install blueprintmanager@~1.0.0  # install the latest patch version of 1.0.x
-vumm install blueprintmanager@dev     # install the latest dev version of blueprintmanager
+vumm install blueprintmanager@latest     # install the latest version (default)
+vumm install blueprintmanager@^1.0.0      # install the latest minor version of 1.x
+vumm install blueprintmanager@~1.0.0      # install the latest patch version of 1.0.x
+vumm install blueprintmanager@dev         # install the latest dev version of blueprintmanager
+vumm install blueprintmanager@1.0.0       # install specific version
+```
+
+The `@tag` syntax is supported across commands that take a mod name:
+```bash
+vumm info <mod@tag>
+vumm install <mod@tag>
+vumm uninstall <mod@tag>
+vumm unpublish <mod@version>
 ```
 
 ### Authenticating
@@ -64,15 +74,20 @@ The readonly type of authentication is mainly what you want on your server, wher
 vumm login [--type <publish|readonly>]
 ```
 
-Registering has the exact same syntax. If you registered successfully it's not needed to login as the access token will already be stored.
+Registering has the exact same syntax. If you registered successfully it's not needed to login as the access token will already be stored securely in your system's credential manager.
 ```bash
 vumm register [--type <publish|readonly>]
+```
+
+To logout and clear stored credentials:
+```bash
+vumm logout
 ```
 
 ### Publish a mod
 As a mod creator you can simply publish your mod by running the following command in your mod source folder
 ```bash
-vumm publish [-t <tag>] [--private]
+vumm publish [-t <tag>]
 ```
 It will read the [mod.json](https://docs.veniceunleashed.net/modding/your-first-mod/#the-modjson-file) to resolve the version, and it's dependencies automatically.\
 By default your mod will be published to the `latest` tag, when specifying the `-t` flag you can specify another tag like `dev` or `beta`.\
@@ -81,12 +96,13 @@ To use this command you have to be logged in with publish rights.
 #### Granting access
 If you decide to publish a private mod, or willing to add multiple contributors to your mod the `grant` and `revoke` commands can be used.
 ```bash
-vumm grant <mod> <user> <publish|readonly>  # give someone publish or read rights over a mod
-vumm revoke <mod> <user>                    # revoke all permissions of user over a mod
+vumm grant <mod> <username> <publish|readonly>  # give someone publish or read rights over a mod
+vumm revoke <mod> <username>                  # revoke all permissions of user over a mod
 ```
 If your mod is private you can use the grant command to give people read rights over the mod like so:
 ```bash
 vumm grant realitymod paulhobbel readonly
+vumm revoke realitymod paulhobbel
 ```
 
 ## Updating VUMM
